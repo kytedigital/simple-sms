@@ -41,6 +41,6 @@ class AuthenticateWithTokenAuth
             return false;
         }
 
-        return $token->shop; 
+        return $token->shop;
     }
 }

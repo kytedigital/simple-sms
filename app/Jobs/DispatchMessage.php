@@ -16,12 +16,17 @@ class DispatchMessage implements ShouldQueue
     /**
      * @var string
      */
-    protected $channel = '';
+    protected $channel;
 
     /**
      * @var string
      */
-    protected $message = '';
+    protected $recipients;
+
+    /**
+     * @var string
+     */
+    protected $message;
 
     /**
      * @var string
@@ -32,13 +37,15 @@ class DispatchMessage implements ShouldQueue
      * Create a new job instance.
      *
      * @param string $channel
+     * @param array $recipients
      * @param Message $message
      * @param string $shop
      */
-    public function __construct(string $channel, Message $message, string $shop)
+    public function __construct(string $channel, array $recipients, string $text, string $shop)
     {
         $this->channel = $channel;
-        $this->message = $message;
+        $this->recipients = $recipients;
+        $this->message = $text;
         $this->shop = $shop;
     }
 
@@ -50,28 +57,32 @@ class DispatchMessage implements ShouldQueue
      */
     public function handle(Client $client)
     {
+        foreach($this->recipients as $recipient) {
 
-        // TODO: for sms only
-        // TODO: Change client depending on channel
-        $to = array_pluck($this->message->getAttribute('recipients'), 'phone');
+            $message = (new Message($recipient, $this->message))->__toArray($this->channel);
 
-        $message = $this->message->toArray($this->channel);
+            $response = $client->request('POST', 'send-sms.json', [
+                'form_params' => $message
+            ]);
 
-//        dd( array_only($message, ['to', 'message']) );
+            $this->dispatchEvent($message, $response);
+        }
+    }
 
-        $response = $client->request('POST', 'send-sms.json', [
-            'form_params' => array_only($message, ['to', 'message'])
-        ]);
-
-        $message['status'] = $response->getStatusCode();
-        $message['responseMessage'] = $response->getBody();
-        $message['sendCount'] = count(array_unique($to));
+    /**
+     * @param $event
+     * @param $response
+     */
+    private function dispatchEvent($event, $response) : void
+    {
+        $event['status'] = $response->getStatusCode();
+        $event['responseMessage'] = $response->getBody();
+        $event['sendCount'] = 1;
 
         event('message.sent', [
             'channel' => $this->channel,
-            'message' => $message,
+            'message' => $event,
             'shop' => $this->shop
         ]);
-
     }
 }

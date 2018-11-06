@@ -1,12 +1,10 @@
 <?php
 namespace App\Http\Controllers\Api;
 
+use App\Jobs\DispatchMessage;
+use App\Services\BurstSms\Client;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\MessageDispatchRequest;
-use App\Jobs\DispatchMessage;
-use App\Models\Message;
-use App\Services\BurstSms\Client;
-use Illuminate\Http\Request;
 
 class MessageController extends Controller
 {
@@ -17,17 +15,13 @@ class MessageController extends Controller
      */
     public function send(MessageDispatchRequest $request, Client $client)
     {
-        $input = (object) json_decode($request->getContent(), true);
+        foreach ($request->json('channels') as $channel) {
 
-        $message = new Message([
-            'recipients' => $input->recipients,
-            'message' => $input->message
-        ]);
+            DispatchMessage::dispatch($channel,
+                $request->json('recipients'),
+                $request->json('message'),
+                $request->input('shop'));
 
-        // Chain jobs so that if the first fails the second
-        // next dispatch.
-        foreach ($input->channels as $channel) {
-            DispatchMessage::dispatch($channel, $message, $request->input('shop'));
         }
 
         return response()->json(['message' => 'OK']);
@@ -51,5 +45,4 @@ class MessageController extends Controller
     {
         return config('services.messaging.channels');
     }
-
 }

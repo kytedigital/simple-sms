@@ -13,22 +13,18 @@ env_variables:
   APP_DEBUG: true
   APP_KEY: base64:q0fxs6z6ngsUSOXA19yPedtTRkpTchoQ3k4vshmF0vI=
   APP_URL: https://penguin-platform.appspot.com
-  DB_CONNECTION: mysql
   CACHE_DRIVER: database
   SESSION_DRIVER: database
   DB_HOST: localhost
-  DB_PORT: 3306
-  DB_SOCKET: "/cloudsql/penguin-platform:australia-southeast1:penguin-platform-db-1"
-  DB_DATABASE: penguin_platform
+  DB_CONNECTION: mysql
+  DB_DATABASE: penguin-platform-db-1
   DB_USERNAME: penguin_platform
   DB_PASSWORD: "@1withPenguins"
+  DB_SOCKET: "/cloudsql/penguin-platform:australia-southeast1:penguin-platform-db-1"
   BURST_SMS_API_KEY: 230e4ea0fd45e3cba4c93d5bf3d9c296
   BURST_SMS_API_SECRET: apisecretkey
   BURST_SMS_API_BASE: https://api.transmitsms.com/
   BURST_SMS_FIXED_NUMBER: 61428974807
-  MYSQL_DSN: mysql:unix_socket=/cloudsql/penguin-platform:australia-southeast1:penguin-platform-db-1;dbname=penguin_platform
-  MYSQL_USER: penguin_platform
-  MYSQL_PASSWORD: "@1withPenguins"
   STORAGE_DIR: /tmp
   MESSAGING_CHANNELS: sms
   APP_TIMEZONE: Australia/Melbourne

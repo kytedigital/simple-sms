@@ -31,7 +31,7 @@ class EventServiceProvider extends ServiceProvider
         Event::listen('message.sent', function ($channel, $message, $shop) {
 
             $message['channel'] = $channel;
-            $message['recipients'] = json_encode($message['recipients']);
+            $message['recipients'] = $message['to'];
             $message['shop'] = $shop;
 
             (new MessageLog($message))->save();
