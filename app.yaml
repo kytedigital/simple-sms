@@ -1,0 +1,39 @@
+runtime: php
+env: flex
+
+runtime_config:
+  document_root: public
+
+# Ensure we skip ".env", which is only for local development
+skip_files:
+  - .env
+
+env_variables:
+  # Put production environment variables here.
+  APP_DEBUG: true
+  APP_KEY: base64:q0fxs6z6ngsUSOXA19yPedtTRkpTchoQ3k4vshmF0vI=
+  APP_URL: https://penguin-platform.appspot.com
+  DB_CONNECTION: mysql
+  CACHE_DRIVER: database
+  SESSION_DRIVER: database
+  DB_HOST: localhost
+  DB_PORT: 3306
+  DB_SOCKET: "/cloudsql/penguin-platform:australia-southeast1:penguin-platform-db-1"
+  DB_DATABASE: penguin_platform
+  DB_USERNAME: penguin_platform
+  DB_PASSWORD: "@1withPenguins"
+  BURST_SMS_API_KEY: 230e4ea0fd45e3cba4c93d5bf3d9c296
+  BURST_SMS_API_SECRET: apisecretkey
+  BURST_SMS_API_BASE: https://api.transmitsms.com/
+  BURST_SMS_FIXED_NUMBER: 61428974807
+  MYSQL_DSN: mysql:unix_socket=/cloudsql/penguin-platform:australia-southeast1:penguin-platform-db-1;dbname=penguin_platform
+  MYSQL_USER: penguin_platform
+  MYSQL_PASSWORD: "@1withPenguins"
+  STORAGE_DIR: /tmp
+  MESSAGING_CHANNELS: sms
+  APP_TIMEZONE: Australia/Melbourne
+
+beta_settings:
+  # for Cloud SQL, set this value to the Cloud SQL connection name,
+  # e.g. "project:region:cloudsql-instance"
+  cloud_sql_instances: penguin-platform:australia-southeast1:penguin-platform-db-1
