@@ -2,15 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\ReceiveAccessCodeRequest;
-use GuzzleHttp\Exception\GuzzleException;
-use Illuminate\Support\Facades\Log;
+use App\Plan;
+use App\Models\Shop;
+use Illuminate\Http\Request;
+use App\Http\Helpers\Shopify;
 use GuzzleHttp\Client as Guzzle;
 use App\Services\Shopify\Client;
-use App\Http\Helpers\Shopify;
-use Illuminate\Http\Request;
-use App\Models\Shop;
-use App\Plan;
+use Illuminate\Support\Facades\Log;
+use GuzzleHttp\Exception\GuzzleException;
 
 class SubscriptionController extends Controller
 {

@@ -100,17 +100,6 @@ class DashboardController extends Controller
     }
 
     /**
-     * @param $request
-     * @return DashboardController
-     */
-    private function forgetStore($request)
-    {
-        $request->session()->forget('shop');
-
-        return $this;
-    }
-
-    /**
      * @return \Illuminate\Session\SessionManager|\Illuminate\Session\Store|mixed
      */
     private function shop()

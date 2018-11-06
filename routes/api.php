@@ -15,7 +15,8 @@ use Illuminate\Http\Request;
 Route::group(['namespace' => 'Api', 'middleware' => ['api']], function () {
     Route::post('dispatch', 'MessageController@send');
     Route::get('message-channels', 'MessageController@availableChannels');
-    Route::get('create-subscription', 'SubscriptionController@createSubscription');
+    Route::get('subscription', 'SubscriptionController@getSubscription');
+    Route::get('subscription/statistics', 'SubscriptionController@getSubscriptionStatistics');
     Route::get('get-subscription', 'SubscriptionController@getSubscription');
     Route::get('customers', 'CustomersController@browse');
     Route::get('customers/search', 'CustomersController@search');
