@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Plan;
+use App\Models\Plan;
 use App\Models\Shop;
 use Illuminate\Http\Request;
 use App\Http\Helpers\Shopify;
