@@ -1,0 +1,316 @@
+{
+	"info": {
+		"_postman_id": "2e776f8d-c69c-425c-afe6-68b7d2f75333",
+		"name": "Shopify SMS",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Installation",
+			"item": [
+				{
+					"name": "Create Subscription",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "123:123",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-Shopify-Access-Token",
+								"type": "text",
+								"value": "d48794cc32325c635c7ec65d36152cc7"
+							},
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"channels\": [\"sms\", \"email\"],\n    \"message\" : \"test\",\n\t\"recipients\": [\n\t\t{ \"phone\": \"61490928809\" }\n\t]\n}"
+						},
+						"url": {
+							"raw": "{{url}}/api/create-subscription",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"create-subscription"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Receive Access Code",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {},
+						"url": {
+							"raw": "{url}/receive-access-code",
+							"host": [
+								"{url}"
+							],
+							"path": [
+								"receive-access-code"
+							]
+						},
+						"description": "Shopify SMS Recieve Access Code"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Subscription Details",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "123:123",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-Shopify-Access-Token",
+								"type": "text",
+								"value": "d48794cc32325c635c7ec65d36152cc7"
+							},
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"channels\": [\"sms\", \"email\"],\n    \"message\" : \"test\",\n\t\"recipients\": [\n\t\t{ \"phone\": \"61490928809\" }\n\t]\n}"
+						},
+						"url": {
+							"raw": "{{url}}/api/create-subscription",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"create-subscription"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Get Customers",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"message\": \"Toast\",\n\t\"recipients\": [ \n\t\t{ \"phone\" : \"61490928809\" }, \n\t\t{ \"phone\" : \"61413944050\" }\n\t\t]\n}"
+				},
+				"url": {
+					"raw": "{{url}}/api/customers?",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"api",
+						"customers"
+					],
+					"query": [
+						{
+							"key": "recipients[]",
+							"value": "610490928809",
+							"disabled": true
+						},
+						{
+							"key": "",
+							"value": "bob",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Search Customers",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "gcd3c510c0c076a23ef4b9b4507976f4ab9061feb46df17485347409776e955d",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"message\": \"Toast\",\n\t\"recipients\": [ \n\t\t{ \"phone\" : \"61490928809\" }, \n\t\t{ \"phone\" : \"61413944050\" }\n\t\t]\n}"
+				},
+				"url": {
+					"raw": "{{url}}/api/customers/search?query=dave",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"api",
+						"customers",
+						"search"
+					],
+					"query": [
+						{
+							"key": "recipients[]",
+							"value": "610490928809",
+							"disabled": true
+						},
+						{
+							"key": "",
+							"value": "bob",
+							"disabled": true
+						},
+						{
+							"key": "query",
+							"value": "dave"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Send a Message.",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "gcd3c510c0c076a23ef4b9b4507976f4ab9061feb46df17485347409776e955d",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "X-Shopify-Access-Token",
+						"value": "d48794cc32325c635c7ec65d36152cc7",
+						"type": "text"
+					},
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"channels\": [\"sms\"],\n    \"message\" : \"test\",\n\t\"recipients\": [\n\t\t{ \n\t\t\t\"phone\": \"61490928809\",\n\t\t\t\"first_name\": \"Kyle\",\n\t\t\t\"last_name:\": \"Kyle\"\n\t\t}\n\t]\n}"
+				},
+				"url": {
+					"raw": "{{url}}/api/dispatch",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"api",
+						"dispatch"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Active Message Channels",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "X-Shopify-Access-Token",
+						"value": "d48794cc32325c635c7ec65d36152cc7",
+						"type": "text"
+					},
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"channels\": [\"sms\", \"email\"],\n    \"message\" : \"test\",\n\t\"recipients\": [\n\t\t{ \"phone\": \"61490928809\" }\n\t]\n}"
+				},
+				"url": {
+					"raw": "{{url}}/api/message-channels",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"api",
+						"message-channels"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

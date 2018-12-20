@@ -41,7 +41,6 @@ class InstallationController extends Controller
         }
 
         try {
-
             $result = (new Guzzle())->post("https://{$request->query('shop')}/admin/oauth/access_token", [
                 'form_params' => [
                     "code" => $request->query('code'),
@@ -49,12 +48,10 @@ class InstallationController extends Controller
                     'client_secret' => $this->clientSecret,
                 ]
             ]);
-
-        } catch( GuzzleException $e ) {
-
+        } catch(GuzzleException $e) {
             Log::debug($e->getMessage());
-            return response()->json(['message' => $e->getMessage()], 500);
 
+            return response()->json(['message' => $e->getMessage()], 500);
         }
 
         $response = json_decode($result->getBody()->getContents());

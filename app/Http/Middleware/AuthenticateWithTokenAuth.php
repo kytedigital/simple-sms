@@ -3,23 +3,30 @@
 namespace App\Http\Middleware;
 
 use Closure;
+use Exception;
 use App\Models\Token;
+use RuntimeException;
+use Illuminate\Http\Request;
 
 class AuthenticateWithTokenAuth
 {
     /**
      * Handle an incoming request.
      *
-     * @param  \Illuminate\Http\Request $request
+     * @param Request $request
      * @param  Closure $next
      * @param  string|null $guard
      * @return mixed
+     * @throws \Throwable
      */
-    public function handle($request, Closure $next, $guard = null)
+    public function handle(Request $request, Closure $next, $guard = null)
     {
-        if(!$request->bearerToken() || !$shop = $this->getShopByToken($request->bearerToken())) {
-            return response()->json(['message' => 'Couldn\'t validate auth token. 
-            Token is incorrect or the shop is not installed.'], 401);
+        try {
+            throw_unless(
+                $shop = $this->getShopByToken($request->bearerToken()), new RuntimeException("That token doesn't exist")
+            );
+        } catch(Exception $e) {
+            return response()->json(['message' => "Token is incorrect or the shop is not installed."], 401);
         }
 
         $request->merge(['shop' => $shop]);

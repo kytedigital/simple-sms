@@ -4,7 +4,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>ArkTools - @yield('title')</title>
+    <title>Emperor - @yield('title')</title>
 
     <link rel="stylesheet" href="https://sdks.shopifycdn.com/polaris/2.7.2/polaris.min.css" />
 </head>

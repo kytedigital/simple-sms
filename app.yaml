@@ -10,17 +10,19 @@ skip_files:
 
 env_variables:
   # Put production environment variables here.
+  # Put production environment variables here.
+  APP_LOG: errorlog
   APP_DEBUG: true
   APP_KEY: base64:q0fxs6z6ngsUSOXA19yPedtTRkpTchoQ3k4vshmF0vI=
-  APP_URL: https://penguin-platform.appspot.com
+  APP_URL: https://sendify.appspot.com
   CACHE_DRIVER: database
   SESSION_DRIVER: database
   DB_HOST: localhost
   DB_CONNECTION: mysql
-  DB_DATABASE: penguin-platform-db-1
-  DB_USERNAME: penguin_platform
+  DB_DATABASE: sendify
+  DB_USERNAME: sendify
   DB_PASSWORD: "@1withPenguins"
-  DB_SOCKET: "/cloudsql/penguin-platform:australia-southeast1:penguin-platform-db-1"
+  DB_SOCKET: "/cloudsql/sendify-225811:australia-southeast1:sendify-db-1"
   BURST_SMS_API_KEY: 230e4ea0fd45e3cba4c93d5bf3d9c296
   BURST_SMS_API_SECRET: apisecretkey
   BURST_SMS_API_BASE: https://api.transmitsms.com/
@@ -32,4 +34,4 @@ env_variables:
 beta_settings:
   # for Cloud SQL, set this value to the Cloud SQL connection name,
   # e.g. "project:region:cloudsql-instance"
-  cloud_sql_instances: penguin-platform:australia-southeast1:penguin-platform-db-1
+  cloud_sql_instances: "sendify-225811:australia-southeast1:sendify-db-1"

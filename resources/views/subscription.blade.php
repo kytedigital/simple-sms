@@ -53,10 +53,10 @@
                                 <div class="Polaris-TextContainer">
                                     <p>Up to 100 messages across all channels / month.</p>
                                 </div>
-                                @if($subscription->name !== 'beacon-sm')
+                                @if(!$subscription || $subscription->name !== 'beacon-sm')
                                     <div class="Polaris-CalloutCard__Buttons">
                                         <a class="Polaris-Button"
-                                           href="{{route('subscription.make', ['code' => 'beacon-sm'])}}"
+                                           href="{{route('subscription.make', ['code' => 'beacon-sm', 'shop' => $shop])}}"
                                            data-polaris-unstyled="true">
                                             <span class="Polaris-Button__Content">
                                                 <span>Choose This Tier</span>
@@ -95,10 +95,10 @@
                                 <div class="Polaris-TextContainer">
                                     <p>Up to 500 messages across all channels / month.</p>
                                 </div>
-                                @if($subscription->name !== 'beacon-md')
+                                @if(!$subscription ||  $subscription->name !== 'beacon-md')
                                     <div class="Polaris-CalloutCard__Buttons">
                                         <a class="Polaris-Button"
-                                           href="{{route('subscription.make', ['code' => 'beacon-md'])}}"
+                                           href="{{route('subscription.make', ['code' => 'beacon-md', 'shop' => $shop])}}"
                                            data-polaris-unstyled="true">
                                                 <span class="Polaris-Button__Content">
                                                     <span>Choose This Tier</span>
@@ -137,10 +137,10 @@
                                 <div class="Polaris-TextContainer">
                                     <p>Up to 1000 messages across all channels / month.</p>
                                 </div>
-                                @if($subscription->name !== 'beacon-lg')
+                                @if(!$subscription ||  $subscription->name !== 'beacon-lg')
                                     <div class="Polaris-CalloutCard__Buttons">
                                         <a class="Polaris-Button"
-                                           href="{{route('subscription.make', ['code' => 'beacon-lg'])}}"
+                                           href="{{route('subscription.make', ['code' => 'beacon-lg', 'shop' => $shop])}}"
                                            data-polaris-unstyled="true">
                                                 <span class="Polaris-Button__Content">
                                                     <span>Choose This Tier</span>
@@ -179,10 +179,10 @@
                                 <div class="Polaris-TextContainer">
                                     <p>Up to 5000 messages across all channels / month.</p>
                                 </div>
-                                @if($subscription->name !== 'beacon-xl')
+                                @if(!$subscription || $subscription->name !== 'beacon-xl')
                                     <div class="Polaris-CalloutCard__Buttons">
                                         <a class="Polaris-Button"
-                                           href="{{route('subscription.make', ['code' => 'beacon-xl'])}}"
+                                           href="{{route('subscription.make', ['code' => 'beacon-xl', 'shop' => $shop])}}"
                                            data-polaris-unstyled="true">
                                                 <span class="Polaris-Button__Content">
                                                     <span>Choose This Tier</span>

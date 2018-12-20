@@ -39,7 +39,7 @@
             <div class="Polaris-FooterHelp__Text">
                 You're currently on our {{ $subscription->name }} plan.
                 <a class="Polaris-Link"
-                   href="{{ route('subscription') }}"
+                   href="{{ route('subscription', ['shop' => $shop]) }}"
                    data-polaris-unstyled="true">
                     Click here to change.
                 </a>

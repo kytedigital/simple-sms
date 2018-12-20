@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Plan;
 use App\Models\Shop;
+use App\Traits\UsesNames;
 use Illuminate\Http\Request;
 use App\Http\Helpers\Shopify;
 use GuzzleHttp\Client as Guzzle;
@@ -13,6 +14,8 @@ use GuzzleHttp\Exception\GuzzleException;
 
 class SubscriptionController extends Controller
 {
+    use UsesNames;
+
     /**
      * @var string
      */
@@ -44,10 +47,10 @@ class SubscriptionController extends Controller
      */
     public function view()
     {
-        $subscription = Shop::where('name', session('shop'))->first()->subscription();
+        $subscription = Shop::where('name', $this->shopName())->first()->subscription();
         $plan = Plan::where('code', $subscription->name)->first();
 
-        return view('subscription', ['subscription' => $subscription, 'plan' => $plan]);
+        return view('subscription', ['subscription' => $subscription, 'plan' => $plan, 'shop' => $this->shopName()]);
     }
 
     /**
@@ -62,7 +65,7 @@ class SubscriptionController extends Controller
 
             'name' => $subscription->getAttribute('code'),
             'price' => $subscription->getAttribute('price'),
-            'return_url' => 'https://' . Shopify::nameToUrl(session('shop')) . "/admin/apps/shopify-sms/activate-subscription",
+            'return_url' => "https://{$this->shopName(true)}/admin/apps/{$this->appName()}/activate-subscription?shop={$this->shopName()}",
             'trial_days' => $subscription->getAttribute('trial_days'),
             'test' => true,
 
@@ -75,10 +78,10 @@ class SubscriptionController extends Controller
      */
     public function createSubscription(Request $request, Client $client)
     {
-        $shop = Shop::where('name', session('shop'))->first();
+        $shop = Shop::where('name', $this->shopName())->first();
 
         $this->client = $client->oauth($shop->getAttribute('token'))
-                                ->setStore(Shopify::nameToUrl($shop->getAttribute('name')))->getClient();
+                                ->setStore($this->shopName(true))->getClient();
 
         try {
 
@@ -110,29 +113,25 @@ class SubscriptionController extends Controller
      */
     public function activateSubscription(Request $request, Client $client)
     {
-        $shop = Shop::where('name', session('shop'))->first();
+        $shop = Shop::where('name', $this->shopName())->first();
 
         $this->client = $client->oauth($shop->getAttribute('token'))
-                                ->setStore(Shopify::nameToUrl($shop->getAttribute('name')))->getClient();
+                                ->setStore($this->shopName(true))->getClient();
 
         try {
-
             $result = $this->client->post(
                 "/admin/recurring_application_charges/{$request->input('charge_id')}/activate.json"
             );
-
         } catch( GuzzleException $e ) {
-
             Log::debug($e->getMessage());
-            return response()->json(['message' => $e->getMessage()], 500);
 
+            return response()->json(['message' => $e->getMessage()], 500);
         }
 
         $result = json_decode($result->getBody())->recurring_application_charge;
 
         Log::info(json_encode($result));
-
-        return response()->redirectTo(route('dashboard'))
-            ->with('message', 'Thank you for updating your subscription to '. $result->name);
+        return response()->redirectTo(route('dashboard', ['shop' => $this->shopName()]))
+                         ->with('message', 'Thank you for updating your subscription to '. $result->name);
     }
 }

@@ -24,7 +24,7 @@ class ApiRequest extends FormRequest
     public function rules()
     {
         return [
-            'shop' => 'string|required'
+            'token' => 'string|required'
         ];
     }
 }

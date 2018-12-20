@@ -2,8 +2,6 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Models\Shop;
-use App\Http\Helpers\Shopify;
 use Illuminate\Http\Request;
 use App\Repositories\Shopify\CustomersRepository;
 

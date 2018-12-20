@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Session;
 
 class CheckForShop
 {
@@ -17,8 +18,9 @@ class CheckForShop
      */
     public function handle($request, Closure $next, $guard = null)
     {
+
         if (!session('shop') && !$request->has('shop')) {
-            return redirect(route('refresh'));
+           // return redirect(route('refresh'));
         }
 
         return $next($request);

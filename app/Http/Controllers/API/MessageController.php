@@ -2,7 +2,6 @@
 namespace App\Http\Controllers\Api;
 
 use App\Jobs\DispatchMessage;
-use App\Services\BurstSms\Client;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\MessageDispatchRequest;
 
@@ -10,32 +9,23 @@ class MessageController extends Controller
 {
     /**
      * @param MessageDispatchRequest $request
-     * @param Client $client
-     * @return \Illuminate\Http\JsonResponse
+     * @return array
      */
-    public function send(MessageDispatchRequest $request, Client $client)
+    public function send(MessageDispatchRequest $request)
     {
         foreach ($request->json('channels') as $channel) {
+
+            if(!in_array($channel, $this->availableChannels())) continue;
 
             DispatchMessage::dispatch($channel,
                 $request->json('recipients'),
                 $request->json('message'),
-                $request->input('shop'));
+                $request->input('shop')
+            );
 
         }
 
-        return response()->json(['message' => 'OK']);
-    }
-
-    /**
-     * @param $message
-     */
-    private function messageEvent($message)
-    {
-        $message['channel'] = 'sms';
-        $message['recipients'] = $message['to'];
-
-        event('message.sent', ['message' => $message]);
+        return ['message' => 'OK'];
     }
 
     /**
