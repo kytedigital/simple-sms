@@ -47,6 +47,7 @@ abstract class RestController extends Controller implements RestControllerInterf
      * Fetch a single item from the resource endpoint.
      *
      * @param $id
+     * @param Request $request
      * @return JsonResponse
      */
     public function read($id, Request $request) : JsonResponse

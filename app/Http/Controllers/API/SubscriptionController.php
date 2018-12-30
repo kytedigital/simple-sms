@@ -2,27 +2,17 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Requests\ApiRequest;
+use Carbon\Carbon;
 use App\MessageLog;
 use App\Models\Shop;
 use App\Models\Plan;
+use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
 use App\Services\Shopify\Client;
 use App\Http\Controllers\Controller;
-use Carbon\Carbon;
-use Illuminate\Http\JsonResponse;
 
 class SubscriptionController extends Controller
 {
-    /**
-     * @var string
-     */
-    private $clientId;
-
-    /**
-     * @var string
-     */
-    private $clientSecret;
-
     /**
      * InstallationController constructor.
      * @param Client $client
@@ -35,10 +25,10 @@ class SubscriptionController extends Controller
     /**
      * Get subscription.
      *
-     * @param ApiRequest $request
+     * @param Request $request
      * @return JsonResponse
      */
-    public function getSubscription(ApiRequest $request) : JsonResponse
+    public function getSubscription(Request $request) : JsonResponse
     {
         $info = $this->getSubscriptionInfo($request->input('shop'));
 
@@ -46,10 +36,10 @@ class SubscriptionController extends Controller
     }
 
     /**
-     * @param ApiRequest $request
+     * @param Request $request
      * @return JsonResponse
      */
-    public function getSubscriptionStatistics(ApiRequest $request) : JsonResponse
+    public function getSubscriptionStatistics(Request $request) : JsonResponse
     {
         $info = [
             'period_usage' => $this->getPeriodUsageByShop($request->input('shop')),
@@ -107,6 +97,6 @@ class SubscriptionController extends Controller
 
         $plan = Plan::where('code', $subscription->name)->first();
 
-        return array_merge((array) $subscription, (array) $plan);
+        return array_merge((array) $subscription, (array) $plan->getAttributes());
     }
 }
