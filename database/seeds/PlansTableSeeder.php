@@ -24,6 +24,7 @@ class PlansTableSeeder extends Seeder
                      infrastructure costs.',
                     'price' => '15.00',
                     'trial_days' => 7,
+                    'message_limit' => 60,
                     'created_at' => Carbon\Carbon::now(),
                     'updated_at' => Carbon\Carbon::now()
                 ],
@@ -36,6 +37,7 @@ class PlansTableSeeder extends Seeder
                      infrastructure costs.',
                     'price' => '15.00',
                     'trial_days' => 0,
+                    'message_limit' => 100,
                     'created_at' => Carbon\Carbon::now(),
                     'updated_at' => Carbon\Carbon::now()
                 ],
@@ -48,6 +50,7 @@ class PlansTableSeeder extends Seeder
                      infrastructure costs.',
                     'price' => '60.00',
                     'trial_days' => 0,
+                    'message_limit' => 500,
                     'created_at' => Carbon\Carbon::now(),
                     'updated_at' => Carbon\Carbon::now()
                 ],
@@ -60,6 +63,7 @@ class PlansTableSeeder extends Seeder
                      infrastructure costs.',
                     'price' => '120.00',
                     'trial_days' => 0,
+                    'message_limit' => 1000,
                     'created_at' => Carbon\Carbon::now(),
                     'updated_at' => Carbon\Carbon::now()
                 ],
@@ -72,6 +76,7 @@ class PlansTableSeeder extends Seeder
                      costs.',
                     'price' => '590.00',
                     'trial_days' => 0,
+                    'message_limit' => 5000,
                     'created_at' => Carbon\Carbon::now(),
                     'updated_at' => Carbon\Carbon::now()
                 ]
