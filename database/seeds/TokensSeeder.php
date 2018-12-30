@@ -34,6 +34,14 @@ class TokensSeeder extends Seeder
                 'expires_at' => $fuckingAgesAway,
                 'created_at' => $now,
                 'updated_at' => $now,
+            ],
+            [
+                'shop' => 'sms-dervelopment-2',
+                'type' => 'app-api',
+                'token' => 'hcd3c510c0c076a23ef4b9b4507976f4ab9061feb46df17485347409776e955d',
+                'expires_at' => $fuckingAgesAway,
+                'created_at' => $now,
+                'updated_at' => $now,
             ]
         ]);
     }

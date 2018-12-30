@@ -49,12 +49,12 @@ abstract class RestController extends Controller implements RestControllerInterf
      * @param $id
      * @return JsonResponse
      */
-    public function read($id) : JsonResponse
+    public function read($id, Request $request) : JsonResponse
     {
         $response = [
             // 'previous' => $this->repository->getPreviousRecordId($id),
             // 'next'     => $this->repository->getNextRecordId($id),
-            'item'     => $this->repository->read($id)
+            'item'     => $this->up($request)->repository->read($id)
         ];
 
         return response()->json($response);

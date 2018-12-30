@@ -14,7 +14,8 @@ interface RestControllerInterface
 
     /**
      * @param $id
+     * @param Request $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function read($id) : \Illuminate\Http\JsonResponse;
+    public function read($id, Request $request) : \Illuminate\Http\JsonResponse;
 }

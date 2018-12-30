@@ -2,10 +2,8 @@
 
 namespace App\Repositories\Shopify;
 
-use App\Http\Helpers\Shopify;
-use App\Models\Shop;
+use InvalidArgumentException;
 use App\Services\Shopify\Client;
-use http\Exception\InvalidArgumentException;
 use Illuminate\Support\Collection;
 use App\Repositories\RepositoryInterface;
 
