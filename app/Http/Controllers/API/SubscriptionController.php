@@ -36,58 +36,6 @@ class SubscriptionController extends Controller
     }
 
     /**
-     * @param Request $request
-     * @return JsonResponse
-     */
-    public function getSubscriptionStatistics(Request $request) : JsonResponse
-    {
-        $info = [
-            'period_usage' => $this->getPeriodUsageByShop($request->input('shop')),
-            'period_remaining' => $this->getRemainingUsageByShop($request->input('shop')),
-            'total_usage' => $this->getTotalUsageByShop($request->input('shop')),
-            'usage_by_channel' => [
-                'sms' => $this->getPeriodUsageByShop($request->input('shop'))
-            ]
-        ];
-
-        return response()->json(['item' => $info]);
-    }
-
-    /**
-     *
-     */
-    private function getPeriodUsageByShop($shop)
-    {
-        $subscription = $this->getSubscriptionInfo($shop);
-
-        $periodStart = Carbon::parse($subscription['billing_on'])->toDateTimeString();
-        $periodEnd = Carbon::parse($subscription['billing_on'])->addMonth()->toDateTimeString();
-
-        return MessageLog::where('shop', $shop)
-                         ->where('created_at', '>', $periodStart)
-                         ->where('created_at', '<', $periodEnd)
-                         ->count();
-    }
-
-    /**
-     *
-     */
-    private function getTotalUsageByShop($shop)
-    {
-        return MessageLog::where('shop', $shop)->count();
-    }
-
-    /**
-     * @param $shop
-     * @return int|void
-     */
-    private function getRemainingUsageByShop($shop)
-    {
-        // TODO: Put message limit in plan and subtract from plan limit.
-        return 100 - $this->getPeriodUsageByShop($shop);
-    }
-
-    /**
      * @param $shop
      * @return array
      */
@@ -95,8 +43,42 @@ class SubscriptionController extends Controller
     {
         $subscription = Shop::where('name', $shop)->first()->subscription();
 
-        $plan = Plan::where('code', $subscription->name)->first();
+        $info = array_merge(
+            (array) $subscription,
+            (array) Plan::where('code', $subscription->name)->first()->getAttributes()
+        );
 
-        return array_merge((array) $subscription, (array) $plan->getAttributes());
+        $usage = [
+            'period_usage' => $this->getPeriodUsage($shop, $info['billing_on']),
+            'period_remaining' => $info['message_limit'] - $this->getPeriodUsage($shop, $info['billing_on']),
+            'total_usage' => $this->getTotalUsageByShop($shop),
+        ];
+
+        return array_merge($info, ['usage' => $usage]);
+    }
+
+    /**
+     * @param $shop
+     * @param $start
+     * @return int
+     */
+    protected function getPeriodUsage($shop, $start) : int
+    {
+        $periodStart = Carbon::parse($start)->toDateTimeString();
+        $periodEnd = Carbon::parse($start)->addMonth()->toDateTimeString();
+
+        return MessageLog::where('shop', $shop)
+            ->where('created_at', '>', $periodStart)
+            ->where('created_at', '<', $periodEnd)
+            ->count();
+    }
+
+    /**
+     * @param $shop
+     * @return mixed
+     */
+    private function getTotalUsageByShop($shop)
+    {
+        return MessageLog::where('shop', $shop)->count();
     }
 }

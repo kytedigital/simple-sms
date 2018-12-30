@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use Illuminate\Support\Collection;
+
 class Message
 {
     public $recipient;
@@ -10,10 +12,10 @@ class Message
 
     /**
      * Message constructor.
-     * @param array $recipient
+     * @param Collection $recipient
      * @param string $message
      */
-    public function __construct(array $recipient, string $message)
+    public function __construct(Collection $recipient, string $message)
     {
         $this->recipient = $recipient;
         $this->message = $message;
@@ -26,8 +28,13 @@ class Message
     {
         $message = $this->message;
 
+        foreach($this->recipient->get('shop') as $attribute => $value) {
+            $message = str_replace('{shop.' . $attribute . '}', $value, $message);
+        }
+
         foreach($this->recipient as $attribute => $value) {
-            $message = str_replace('{'.$attribute.'}', $value, $message);
+            if(is_object($value)) continue;
+            $message = str_replace('{' . $attribute . '}', $value, $message);
         }
 
         return $message;

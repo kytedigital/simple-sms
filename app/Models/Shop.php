@@ -52,6 +52,22 @@ class Shop extends Model
     }
 
     /**
+     * Retrieve shop detail from Shopify API.
+     *
+     * @return \Illuminate\Support\Collection
+     */
+    public function shopDetails()
+    {
+        $charges = json_decode(
+            $this->client()
+                ->get("/admin/shop.json")
+                ->getBody()
+                ->getContents())->shop;
+
+        return $charges;
+    }
+
+    /**
      * @return \GuzzleHttp\Client
      */
     private function client()

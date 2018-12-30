@@ -19,8 +19,6 @@ Route::group(['namespace' => 'Api'], function () {
     });
     Route::get('message-channels', 'MessageController@availableChannels');
     Route::get('subscription', 'SubscriptionController@getSubscription');
-    Route::get('subscription/statistics', 'SubscriptionController@getSubscriptionStatistics');
-    Route::get('get-subscription', 'SubscriptionController@getSubscription');
     Route::get('customers', 'CustomersController@browse');
     Route::get('customers/search', 'CustomersController@search');
     Route::get('customers/{id}', 'CustomersController@read');
