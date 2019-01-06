@@ -21,21 +21,21 @@ class Client
     protected $account_handle;
 
     /**
-     * API Datacenter.
+     * ApiService Datacenter.
      *
      * @var string
      */
     protected $data_center;
 
     /**
-     * API Access Username.
+     * ApiService Access Username.
      *
      * @var string
      */
     protected $api_user;
 
     /**
-     * API Access Key.
+     * ApiService Access Key.
      *
      * @var string
      */
@@ -65,8 +65,8 @@ class Client
      * Client constructor.
      *
      * @param string $data_center - MailChimp Data Center
-     * @param string $api_user - MailChimp Admin API access password
-     * @param string $api_key - MailChimp API access key
+     * @param string $api_user - MailChimp Admin ApiService access password
+     * @param string $api_key - MailChimp ApiService access key
      */
     public function __construct(string $data_center, string $api_user, string $api_key)
     {

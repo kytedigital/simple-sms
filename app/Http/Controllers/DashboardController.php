@@ -46,8 +46,9 @@ class DashboardController extends Controller
             $shop = $shop->where(['name' => $this->shopName()])->firstOrFail();
 
             if(!$shop->token) $this->startInstall($request);
+
         } catch(ModelNotFoundException $exception) {
-            return view('error', ['message' => _('error.installation')]);
+            return view('error', ['message' => __('errors.installation')]);
         }
 
         $token = $this->generateApiToken();

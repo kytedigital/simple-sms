@@ -19,14 +19,14 @@ class Client
     protected $baseUrl;
 
     /**
-     * API key.
+     * ApiService key.
      *
      * @var string
      */
     protected $key;
 
     /**
-     * API key.
+     * ApiService key.
      *
      * @var string
      */

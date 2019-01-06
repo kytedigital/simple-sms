@@ -54,7 +54,7 @@ abstract class ShopifyRepository implements RepositoryInterface
     public function get(string $path, string $resource = null) : Collection
     {
         if(!$this->shop) {
-            throw new InvalidArgumentException('Can\'t access API without shop details. Run setShop first.');
+            throw new InvalidArgumentException('Can\'t access ApiService without shop details. Run setShop first.');
         }
 
         $this->client

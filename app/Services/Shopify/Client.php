@@ -25,21 +25,21 @@ class Client
     private $client;
 
     /**
-     * API Access Key.
+     * ApiService Access Key.
      *
      * @var string
      */
     protected $api_key;
 
     /**
-     * API Access Token.
+     * ApiService Access Token.
      *
      * @var string
      */
     protected $api_token;
 
     /**
-     * API Access Password.
+     * ApiService Access Password.
      *
      * @var string
      */
@@ -71,8 +71,8 @@ class Client
     /**
      * Client constructor.
      *
-     * @param string $api_key - Shopify Admin API access key
-     * @param string $api_password - Shopify Admin API access password
+     * @param string $api_key - Shopify Admin ApiService access key
+     * @param string $api_password - Shopify Admin ApiService access password
      * @return Client
      */
     public function bearer(string $api_key, string $api_password)

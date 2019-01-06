@@ -42,7 +42,7 @@ class Shop extends Model
     }
 
     /**
-     * Retrieve all charges for this Shop from Shopify API.
+     * Retrieve all charges for this Shop from Shopify ApiService.
      *
      * @return \Illuminate\Support\Collection
      */
@@ -59,7 +59,7 @@ class Shop extends Model
     }
 
     /**
-     * Retrieve shop detail from Shopify API.
+     * Retrieve shop detail from Shopify ApiService.
      *
      * @return \Illuminate\Support\Collection
      */

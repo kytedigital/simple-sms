@@ -15,16 +15,7 @@
         </div>
     @endif
 
-    <h1>Fancy Single Page App Here</h1>
-
-    <div id="app">
-        <!-- For security, please remove these from the page once loaded into the app -->
-        <div id="remove_me" style="display: none">
-            <csrf-token>{{ csrf_token() }}</csrf-token>
-            <api-token>{{ $token }}</api-token>
-        </div>
-        <!-- -->
-    </div>
+    <div id="app"></div>
 
     <div class="Polaris-FooterHelp">
         <div class="Polaris-FooterHelp__Content">
@@ -48,4 +39,15 @@
     </div>
 
     <script type="text/javascript" src="js/app.js"></script>
+
+    <script>
+        if(SendifyLoader !== undefined) {
+            SendifyLoader.bind({
+                'shop': '{{ $shop }}',
+                'token': '{{ $token }}',
+                'signature': '{{ csrf_token() }}'
+            }, 'app');
+        }
+    </script>
+
 @endsection

@@ -72,7 +72,7 @@ class DispatchMessage implements ShouldQueue
         $this->dispatchEvent($message, $response);
 
         /**
-         * To provide the best service to all our customers we limit the number of API calls
+         * To provide the best service to all our customers we limit the number of ApiService calls
          * which can be made by each account to 2 calls per sec. For heavy users we can increase
          * your throttling speed, but please contact us to discuss your requirements. If you
          * exceed this limit we will return two indicators which you can use in your code

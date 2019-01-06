@@ -7,7 +7,7 @@ use GuzzleHttp\Client as GuzzleClient;
 class Client
 {
     /**
-     * SendGrid API Base URL
+     * SendGrid ApiService Base URL
      */
     const API_BASE_URL = 'https://api.sendgrid.com/v3/';
 
@@ -19,7 +19,7 @@ class Client
     private $client;
 
     /**
-     * API key.
+     * ApiService key.
      *
      * @var string
      */
@@ -28,12 +28,12 @@ class Client
     /**
      * Client constructor.
      *
-     * @param string $key - SendGrid API Key for client.
+     * @param string $key - SendGrid ApiService Key for client.
      */
     public function __construct(string $key)
     {
         if(empty($key)) {
-            throw new \InvalidArgumentException('SendGrid client requires an API key and 
+            throw new \InvalidArgumentException('SendGrid client requires an ApiService key and 
             store strings to initialise on line');
         }
 

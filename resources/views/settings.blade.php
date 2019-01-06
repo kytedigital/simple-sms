@@ -41,13 +41,13 @@
             </ul>
         </fieldset>
         <br>
-        <p>Burst SMS API Credentials are available on your Burst SMS
+        <p>Burst SMS ApiService Credentials are available on your Burst SMS
             <a href="https://burst.transmitsms.com/profile">account profile page</a></p>
         <br>
         <div class="">
             <div class="Polaris-Labelled__LabelWrapper">
                 <div class="Polaris-Label">
-                    <label id="TextField5Label" for="TextField5" class="Polaris-Label__Text">Provider API Key</label>
+                    <label id="TextField5Label" for="TextField5" class="Polaris-Label__Text">Provider ApiService Key</label>
                 </div>
             </div>
             <div class="Polaris-TextField">
@@ -59,7 +59,7 @@
         <div class="">
             <div class="Polaris-Labelled__LabelWrapper">
                 <div class="Polaris-Label">
-                    <label id="TextField5Label" for="TextField5" class="Polaris-Label__Text">Provider API Secret</label>
+                    <label id="TextField5Label" for="TextField5" class="Polaris-Label__Text">Provider ApiService Secret</label>
                 </div>
             </div>
             <div class="Polaris-TextField">
