@@ -44,17 +44,12 @@ class SubscriptionController extends Controller
         $subscription = Shop::where('name', $shop)->first()->subscription();
 
         $info = array_merge(
-            (array) $subscription,
-            (array) Plan::where('code', $subscription->name)->first()->getAttributes()
+            (array) $subscription->getAttributes(),
+            (array) $subscription->plan->getAttributes()
         );
 
-        $usage = [
-            'period_usage' => $this->getPeriodUsage($shop, $info['billing_on']),
-            'period_remaining' => $info['message_limit'] - $this->getPeriodUsage($shop, $info['billing_on']),
-            'total_usage' => $this->getTotalUsageByShop($shop),
-        ];
-
-        return array_merge($info, ['usage' => $usage]);
+        // TODO: Message log should tie to subscription ID not shop, it's weird passing shop trough.
+        return array_merge($info, ['usage' => $subscription->getUsage($shop)]);
     }
 
     /**

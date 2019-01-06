@@ -32,7 +32,7 @@ class Message
             $message = str_replace('{shop.' . $attribute . '}', $value, $message);
         }
 
-        foreach($this->recipient as $attribute => $value) {
+        foreach($this->recipient->first() as $attribute => $value) {
             if(is_object($value)) continue;
             $message = str_replace('{' . $attribute . '}', $value, $message);
         }
@@ -49,7 +49,7 @@ class Message
         switch($type) {
             case 'sms' :
                 return ['message' => $this->preparedMessage(),
-                        'to' => $this->recipient['phone'] ];
+                        'to' => $this->recipient->first()['phone'] ];
             default :
                 return parent::toArray();
         }

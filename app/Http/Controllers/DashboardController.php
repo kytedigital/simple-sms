@@ -69,6 +69,8 @@ class DashboardController extends Controller
 
         $request->session()->put('nounce', md5($this->shopName() . time()));
 
+        dd('start install');
+
         return response()->redirectTo(
             "https://{$this->shopName()}.myshopify.com/admin/oauth/authorize?client_id={$this->clientId}&scope=read_customers&redirect_uri=$redirectUrl&state=".session('nounce')
         );

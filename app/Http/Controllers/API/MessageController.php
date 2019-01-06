@@ -32,13 +32,32 @@ class MessageController extends Controller
      */
     public function send(MessageDispatchRequest $request)
     {
+
+        $shop = $this->getShop($request->json('shop'));
+
+        $subscription = $shop->subscription();
+
+        $credits = $subscription->getRemainingCredits($request->json('shop'));
+
+        $recipients = collect($request->json('recipients'));
+
+        if(($credits < 1) || $credits < $recipients->count() && !$request->json('enable_partial', false)) {
+
+            return [
+                'status'  => 405,
+                'message' => "Not enough credits remaining to send {$recipients->count()} messages",
+                'credits_remaining' => $credits
+            ];
+
+        }
+
         try {
 
             $channels = $this->cleanChannels($request->json('channels'));
 
             $shopData = $this->getShopData($request->json('shop'));
 
-            foreach ($request->json('recipients') as $recipient) {
+            foreach ($recipients->chunk($credits) as $recipient) {
 
                 $recipient = collect($recipient)->merge(['shop' => $shopData]);
 
@@ -58,7 +77,10 @@ class MessageController extends Controller
             return ['message' => $exception->getMessage(), 'status' => $exception->getCode()];
         }
 
-        return ['message' => 'OK'];
+        return [
+            'message' => 'OK',
+            'recipients' => json_encode($recipients), // TODO - Wont work for other channels.
+        ];
     }
 
     /**
@@ -67,7 +89,16 @@ class MessageController extends Controller
      */
     private function getShopData($shop) : Collection
     {
-        return collect(Shop::where('name', $shop)->first()->shopDetails())->only(self::SHOP_PROPERTIES);
+        return collect($this->getShop($shop)->shopDetails())->only(self::SHOP_PROPERTIES);
+    }
+
+    /**
+     * @param $shopName
+     * @return
+     */
+    private function getShop($shopName)
+    {
+        return Shop::where('name', $shopName)->first();
     }
 
     /**

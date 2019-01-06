@@ -2,9 +2,10 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-use App\Services\Shopify\Client;
 use App\Http\Helpers\Shopify;
+use App\Services\Shopify\Client;
+use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Model;
 
 class Shop extends Model
 {
@@ -28,7 +29,13 @@ class Shop extends Model
         $activeCharges = $this->charges()->where('status', 'active');
 
         if($this->charges()->where('status', 'active')->count()) {
-            return $activeCharges->first();
+            $data = (array) $activeCharges->first();
+
+            // Parse these otherwise laravel spins out.
+            $data['created_at'] = Carbon::parse($data['created_at']);
+            $data['updated_at'] = Carbon::parse($data['updated_at']);
+
+            return new Subscription($data);
         }
 
         return null;
