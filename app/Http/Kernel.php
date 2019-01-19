@@ -39,6 +39,7 @@ class Kernel extends HttpKernel
         'api' => [
             \App\Http\Middleware\AuthenticateWithTokenAuth::class,
             \App\Http\Middleware\EnsureJson::class,
+            \App\Http\Middleware\AllowCors::class,
             'throttle:60,1',
             'bindings',
         ],

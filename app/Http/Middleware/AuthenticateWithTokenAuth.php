@@ -23,7 +23,8 @@ class AuthenticateWithTokenAuth
     {
         try {
             throw_unless(
-                $shop = $this->getShopByToken($request->bearerToken()), new RuntimeException("That token doesn't exist")
+                $shop = $this->getShopByToken($request->bearerToken()),
+                new RuntimeException("Can't find a shop with that token.")
             );
         } catch(Exception $e) {
             return response()->json(['message' => "Token is incorrect or the shop is not installed."], 401);

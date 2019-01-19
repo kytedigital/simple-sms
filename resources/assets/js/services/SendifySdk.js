@@ -15,14 +15,14 @@ export default class SendifySdk {
     static fetch(url, callback) {
 
         const options = {
-            base: 'https://emperor.appspot.com/api/',
-            token: 'hcd3c510c0c076a23ef4b9b4507976f4ab9061feb46df17485347409776e955d',
+           // base: 'https://emperor.appspot.com/api/',
+            base: 'https://shopify-sms.test/api/',
+            token: '9f852eb6ce5fdd8ecd2c31402ac1fea1b4769db783fe287c8a0117d35fa8325d',
             method: 'GET',
             url: url
         };
 
         // TODO set loading state
-
         try {
 
             ApiService.send(options).then((response) => {
