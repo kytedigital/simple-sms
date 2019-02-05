@@ -1,4 +1,5 @@
 import ApiService from './ApiService';
+import * as axios from "axios";
 
 export default class SendifySdk {
 
@@ -6,28 +7,46 @@ export default class SendifySdk {
         return '0.1';
     }
 
-    static getCustomers() {
-        this.fetch('customers', function(response) {
-            return response.data;
+    static sendMessage(message, recipients, callback) {
+        let data = {
+            'channels': [ 'sms' ],
+            'message': message,
+            'recipients': recipients
+        };
+
+        console.log(data);
+
+        return this.call('dispatch', function(response) {
+            return callback(response.data);
+        }, 'POST', data);
+    }
+
+    static getCustomers(callback) {
+        return this.call('customers', function(response) {
+            return callback(response.data);
         });
     }
 
-    static fetch(url, callback) {
-
+    static call(url, callback, method = 'GET', data = {}) {
         const options = {
            // base: 'https://emperor.appspot.com/api/',
             base: 'https://shopify-sms.test/api/',
             token: '9f852eb6ce5fdd8ecd2c31402ac1fea1b4769db783fe287c8a0117d35fa8325d',
-            method: 'GET',
-            url: url
+            method: method,
+            url: url,
+            data: data
         };
+
+        console.log(options);
 
         // TODO set loading state
         try {
 
-            ApiService.send(options).then((response) => {
-                return callback(response);
-            });
+            return axios.create({ baseURL: options.base, headers: { 'Authorization': 'Bearer ' + options.token }, data})
+                        .request(options)
+                        .then((response) => {
+                            return callback(response);
+                        });
 
         } catch(e) {
 

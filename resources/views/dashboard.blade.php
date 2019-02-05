@@ -49,5 +49,4 @@
             }, 'app');
         }
     </script>
-
 @endsection
