@@ -14,8 +14,8 @@ class AddMessageLimitToPlans extends Migration
     public function up()
     {
         Schema::table('plans', function($table) {
-            $table->integer('message_limit');
-        });
+        $table->integer('message_limit');
+    });
 
         $this->seed();
     }

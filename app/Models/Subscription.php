@@ -53,7 +53,6 @@ class Subscription extends Model
      */
     public function getRemainingCredits($shop)
     {
-        dd($this->plan->message_limit);
         return $this->plan->message_limit - $this->getPeriodUsage($shop, $this->billing_on);
     }
 
