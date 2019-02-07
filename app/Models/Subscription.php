@@ -53,13 +53,12 @@ class Subscription extends Model
      */
     public function getRemainingCredits($shop)
     {
-        return 500;
+        dd($this->plan->message_limit);
         return $this->plan->message_limit - $this->getPeriodUsage($shop, $this->billing_on);
     }
 
     /**
      * @param $shop
-     * @param $start
      * @return int
      */
     protected function getPeriodUsage($shop) : int
@@ -81,5 +80,4 @@ class Subscription extends Model
     {
         return MessageLog::where('shop', $shop)->count();
     }
-
 }
