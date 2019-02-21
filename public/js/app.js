@@ -3878,7 +3878,7 @@ var Dashboard = function (_Component) {
 
         _this.state = {
             "customers": [],
-            "recipients": [],
+            "selectedRecipientIds": [],
             "message": "",
             "phoneNumber": "",
             "noticeTitle": "",
@@ -3888,41 +3888,73 @@ var Dashboard = function (_Component) {
     }
 
     _createClass(Dashboard, [{
-        key: 'componentWillMount',
-        value: function componentWillMount() {
+        key: 'customersAsOptions',
+        value: function customersAsOptions() {
+            return this.state.customers.map(function (customer) {
+                return { 'value': customer.id, 'label': customer.first_name + ' ' + customer.last_name + ' (' + customer.phone + ')' };
+            });
+        }
+    }, {
+        key: 'selectedRecipients',
+        value: function selectedRecipients() {
             var _this2 = this;
 
-            __WEBPACK_IMPORTED_MODULE_2__services_SendifySdk__["a" /* default */].getCustomers(function (response) {
-                _this2.setState({ "customers": response });
+            return this.state.customers.filter(function (customer) {
+                return _this2.state.selectedRecipientIds.indexOf(customer.id) !== -1;
+            });
+        }
+    }, {
+        key: 'componentWillMount',
+        value: function componentWillMount() {
+            var _this3 = this;
+
+            __WEBPACK_IMPORTED_MODULE_2__services_SendifySdk__["a" /* default */].getCustomers(function (customers) {
+                _this3.setState({ "customers": customers });
             });
         }
     }, {
         key: 'sendMessage',
-        value: function sendMessage(field) {
-            var _this3 = this;
+        value: function sendMessage() {
+            var _this4 = this;
 
-            // TODO: Validation?
-            var message = this.state.message;
-            var phone = this.state.phoneNumber;
-            var recipients = [{ "first_name": "Testy", "last_name": "Testerson", "phone": phone }];
+            var testMode = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
 
-            console.log(recipients);
+            if (!this.state.message) {
+                this.setState({ "noticeTitle": 'Missing Details', "notice": 'Please add a message to send' });
+                return;
+            }
 
-            __WEBPACK_IMPORTED_MODULE_2__services_SendifySdk__["a" /* default */].sendMessage(message, recipients, function (response) {
-                _this3.setState({ "noticeTitle": "Sent!", "notice": response });
+            if (testMode && !this.state.phoneNumber) {
+                this.setState({ "noticeTitle": 'Missing Details', "notice": 'Please add a test number to target..' });
+                return;
+            }
+
+            if (!testMode && !this.state.selectedRecipientIds.length) {
+                this.setState({ "noticeTitle": 'Missing Details', "notice": 'Please add recipients to send to.' });
+                return;
+            }
+
+            this.setState({ "noticeTitle": 'Sending...', "notice": 'Sending your message, the status will be updated here when it completes.' });
+
+            var recipients = [];
+            if (!testMode) {
+                recipients = this.selectedRecipients();
+            } else {
+                recipients = [{ "first_name": "Testy", "last_name": "Testerson", "phone": this.state.phoneNumber }];
+            }
+
+            __WEBPACK_IMPORTED_MODULE_2__services_SendifySdk__["a" /* default */].sendMessage(this.state.message, recipients, function (response) {
+                var title = response.status === 200 ? 'Sent!' : 'Oops, a problem occurred.';
+                console.log(response);
+                _this4.setState({ "noticeTitle": title, "notice": response.message });
             });
-
-            console.log(message);
-            console.log(field);
         }
     }, {
         key: 'render',
         value: function render() {
-            var _this4 = this;
+            var _this5 = this;
 
-            console.log('customers', this.state);
-
-            if (!this.state.customers.items) {
+            if (!this.state.customers) {
                 return __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(__WEBPACK_IMPORTED_MODULE_3__LoadingPage__["a" /* default */], null);
             }
 
@@ -3931,14 +3963,24 @@ var Dashboard = function (_Component) {
                 notice = __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
                     __WEBPACK_IMPORTED_MODULE_1__shopify_polaris__["c" /* Banner */],
                     { title: this.state.noticeTitle, onDismiss: function onDismiss() {
-                            _this4.setState({ 'notice': '' });
+                            _this5.setState({ 'notice': '' });
                         } },
-                    __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
-                        'p',
-                        null,
-                        this.state.notice
-                    )
+                    this.state.notice
                 );
+            }
+
+            var customers = '';
+            if (this.state.customers.length) {
+                customers = __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(__WEBPACK_IMPORTED_MODULE_1__shopify_polaris__["f" /* OptionList */], {
+                    onChange: function onChange(updated) {
+                        _this5.setState({ selectedRecipientIds: updated });
+                    },
+                    options: this.customersAsOptions(),
+                    selected: this.state.selectedRecipientIds,
+                    allowMultiple: true
+                });
+            } else {
+                customers = "Loading...";
             }
 
             return __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
@@ -3951,90 +3993,71 @@ var Dashboard = function (_Component) {
                         title: 'SMS Service'
                     },
                     __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
-                        __WEBPACK_IMPORTED_MODULE_1__shopify_polaris__["f" /* Layout */],
+                        __WEBPACK_IMPORTED_MODULE_1__shopify_polaris__["e" /* Layout */],
                         null,
                         __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
-                            __WEBPACK_IMPORTED_MODULE_1__shopify_polaris__["f" /* Layout */].Section,
+                            __WEBPACK_IMPORTED_MODULE_1__shopify_polaris__["e" /* Layout */].Section,
                             { secondary: true },
                             __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
-                                __WEBPACK_IMPORTED_MODULE_1__shopify_polaris__["e" /* Card */],
-                                { title: 'Available Customers', actions: [{ content: 'choose' }] },
+                                __WEBPACK_IMPORTED_MODULE_1__shopify_polaris__["d" /* Card */],
+                                { title: 'Test Number' },
                                 __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
-                                    __WEBPACK_IMPORTED_MODULE_1__shopify_polaris__["e" /* Card */].Section,
+                                    __WEBPACK_IMPORTED_MODULE_1__shopify_polaris__["d" /* Card */].Section,
                                     null,
-                                    __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
-                                        __WEBPACK_IMPORTED_MODULE_1__shopify_polaris__["n" /* TextStyle */],
-                                        { variation: 'subdued' },
-                                        this.state.customers.items.length,
-                                        ' customers available'
-                                    )
-                                ),
-                                __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
-                                    __WEBPACK_IMPORTED_MODULE_1__shopify_polaris__["e" /* Card */].Section,
-                                    { title: 'People' },
-                                    __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(__WEBPACK_IMPORTED_MODULE_1__shopify_polaris__["h" /* ResourceList */], {
-                                        resourceName: { singular: 'customer', plural: 'customers' },
-                                        items: this.state.customers.items,
-                                        renderItem: function renderItem(item) {
-                                            var id = item.id,
-                                                first_name = item.first_name,
-                                                last_name = item.last_name,
-                                                phone = item.phone;
-
-                                            var media = __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(__WEBPACK_IMPORTED_MODULE_1__shopify_polaris__["b" /* Avatar */], { customer: true, size: 'medium', name: first_name + ' ' + last_name });
-
-                                            return __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
-                                                __WEBPACK_IMPORTED_MODULE_1__shopify_polaris__["h" /* ResourceList */].Item,
-                                                {
-                                                    id: id,
-                                                    url: '/admin/customers/' + id,
-                                                    media: media,
-                                                    accessibilityLabel: 'View details for ' + first_name + ' ' + last_name
-                                                },
-                                                __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
-                                                    'h3',
-                                                    null,
-                                                    __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
-                                                        __WEBPACK_IMPORTED_MODULE_1__shopify_polaris__["n" /* TextStyle */],
-                                                        { variation: 'strong' },
-                                                        first_name,
-                                                        ' ',
-                                                        last_name
-                                                    )
-                                                ),
-                                                __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
-                                                    'div',
-                                                    null,
-                                                    phone
-                                                )
-                                            );
+                                    __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(__WEBPACK_IMPORTED_MODULE_1__shopify_polaris__["m" /* TextField */], {
+                                        label: 'Phone',
+                                        type: 'phone',
+                                        helpText: __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+                                            'span',
+                                            null,
+                                            'Phone number for message tests.'
+                                        ),
+                                        value: this.state.phoneNumber,
+                                        onChange: function onChange(value) {
+                                            return _this5.setState({ phoneNumber: value });
                                         }
                                     })
+                                )
+                            ),
+                            __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+                                __WEBPACK_IMPORTED_MODULE_1__shopify_polaris__["d" /* Card */],
+                                { title: 'Available Customers (' + this.state.customers.length + ')', actions: [{ content: 'Select All' }] },
+                                __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+                                    __WEBPACK_IMPORTED_MODULE_1__shopify_polaris__["d" /* Card */].Section,
+                                    null,
+                                    customers
                                 )
                             )
                         ),
                         __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
-                            __WEBPACK_IMPORTED_MODULE_1__shopify_polaris__["f" /* Layout */].Section,
+                            __WEBPACK_IMPORTED_MODULE_1__shopify_polaris__["e" /* Layout */].Section,
                             null,
+                            notice,
                             __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
-                                __WEBPACK_IMPORTED_MODULE_1__shopify_polaris__["e" /* Card */],
-                                { title: 'Prepare to send...', actions: [{ content: 'choose' }] },
-                                notice,
+                                __WEBPACK_IMPORTED_MODULE_1__shopify_polaris__["d" /* Card */],
+                                { title: 'Prepare to send...',
+                                    secondaryFooterAction: { content: 'Send Test', onAction: function onAction() {
+                                            return _this5.sendMessage(true);
+                                        } },
+                                    primaryFooterAction: { content: 'Send', onAction: function onAction() {
+                                            return _this5.sendMessage();
+                                        } }
+                                },
                                 __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
-                                    __WEBPACK_IMPORTED_MODULE_1__shopify_polaris__["e" /* Card */].Section,
-                                    { title: 'Your Message' },
+                                    __WEBPACK_IMPORTED_MODULE_1__shopify_polaris__["d" /* Card */].Section,
+                                    null,
                                     __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(__WEBPACK_IMPORTED_MODULE_1__shopify_polaris__["m" /* TextField */], { name: 'message',
-                                        label: "Message to send",
+                                        label: "Your message to customers:",
                                         multiline: true,
                                         placeholder: 'e.g. Hi {first_name}, just to let you know, {store} are having a massive 20% off sale this weekend. Use code WEEKENDSAVINGS to claim your discount.',
                                         value: this.state.message,
                                         onChange: function onChange(value) {
-                                            return _this4.setState({ message: value });
+                                            return _this5.setState({ message: value });
                                         }
                                     })
                                 ),
                                 __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
-                                    __WEBPACK_IMPORTED_MODULE_1__shopify_polaris__["e" /* Card */].Section,
+                                    __WEBPACK_IMPORTED_MODULE_1__shopify_polaris__["d" /* Card */].Section,
                                     null,
                                     __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
                                         __WEBPACK_IMPORTED_MODULE_1__shopify_polaris__["n" /* TextStyle */],
@@ -4043,21 +4066,21 @@ var Dashboard = function (_Component) {
                                     )
                                 ),
                                 __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
-                                    __WEBPACK_IMPORTED_MODULE_1__shopify_polaris__["e" /* Card */].Section,
+                                    __WEBPACK_IMPORTED_MODULE_1__shopify_polaris__["d" /* Card */].Section,
                                     null,
                                     __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
                                         __WEBPACK_IMPORTED_MODULE_1__shopify_polaris__["n" /* TextStyle */],
                                         { variation: 'subdued' },
-                                        this.state.recipients.length,
+                                        this.state.selectedRecipientIds.length,
                                         ' recipients selected'
                                     )
                                 ),
                                 __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
-                                    __WEBPACK_IMPORTED_MODULE_1__shopify_polaris__["e" /* Card */].Section,
+                                    __WEBPACK_IMPORTED_MODULE_1__shopify_polaris__["d" /* Card */].Section,
                                     { title: 'Recipients' },
                                     __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(__WEBPACK_IMPORTED_MODULE_1__shopify_polaris__["h" /* ResourceList */], {
                                         resourceName: { singular: 'customer', plural: 'customers' },
-                                        items: this.state.recipients,
+                                        items: this.selectedRecipients(),
                                         renderItem: function renderItem(item) {
                                             var id = item.id,
                                                 first_name = item.first_name,
@@ -4065,7 +4088,6 @@ var Dashboard = function (_Component) {
                                                 phone = item.phone;
 
                                             var media = __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(__WEBPACK_IMPORTED_MODULE_1__shopify_polaris__["b" /* Avatar */], { customer: true, size: 'medium', name: first_name + ' ' + last_name });
-
                                             return __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
                                                 __WEBPACK_IMPORTED_MODULE_1__shopify_polaris__["h" /* ResourceList */].Item,
                                                 {
@@ -4093,47 +4115,6 @@ var Dashboard = function (_Component) {
                                             );
                                         }
                                     })
-                                ),
-                                __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
-                                    __WEBPACK_IMPORTED_MODULE_1__shopify_polaris__["e" /* Card */].Section,
-                                    null,
-                                    __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
-                                        __WEBPACK_IMPORTED_MODULE_1__shopify_polaris__["n" /* TextStyle */],
-                                        { variation: 'subdued' },
-                                        'Test and Send'
-                                    )
-                                ),
-                                __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
-                                    __WEBPACK_IMPORTED_MODULE_1__shopify_polaris__["e" /* Card */].Section,
-                                    { title: 'Recipients' },
-                                    __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(__WEBPACK_IMPORTED_MODULE_1__shopify_polaris__["m" /* TextField */], {
-                                        label: 'Phone',
-                                        type: 'phone',
-                                        helpText: __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
-                                            'span',
-                                            null,
-                                            'Send a single message to this test number.'
-                                        ),
-                                        value: this.state.phoneNumber,
-                                        onChange: function onChange(value) {
-                                            return _this4.setState({ phoneNumber: value });
-                                        }
-                                    }),
-                                    __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
-                                        __WEBPACK_IMPORTED_MODULE_1__shopify_polaris__["d" /* Button */],
-                                        { onClick: function onClick() {
-                                                return _this4.sendMessage();
-                                            } },
-                                        'Send single test recipient.'
-                                    ),
-                                    __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement('br', null),
-                                    __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
-                                        __WEBPACK_IMPORTED_MODULE_1__shopify_polaris__["d" /* Button */],
-                                        { primary: true, onClick: function onClick() {
-                                                return _this4.sendMessage();
-                                            } },
-                                        'SEND TO CUSTOMERS'
-                                    )
                                 )
                             )
                         )
@@ -4187,13 +4168,13 @@ module.exports = ReactPropTypesSecret;
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return Banner$1; });
 /* unused harmony export Backdrop */
 /* unused harmony export Breadcrumbs */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "d", function() { return Button$3; });
+/* unused harmony export Button */
 /* unused harmony export buttonFrom */
 /* unused harmony export buttonsFrom */
 /* unused harmony export ButtonGroup */
 /* unused harmony export CalloutCard */
 /* unused harmony export Caption */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "e", function() { return Card$1; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "d", function() { return Card$1; });
 /* unused harmony export Checkbox */
 /* unused harmony export ChoiceList */
 /* unused harmony export Collapsible */
@@ -4231,12 +4212,12 @@ module.exports = ReactPropTypesSecret;
 /* unused harmony export KeypressListener */
 /* unused harmony export Label */
 /* unused harmony export Labelled */
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "f", function() { return Layout$1; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "e", function() { return Layout$1; });
 /* unused harmony export Link */
 /* unused harmony export List */
 /* unused harmony export Loading */
 /* unused harmony export Modal */
-/* unused harmony export OptionList */
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "f", function() { return OptionList$2; });
 /* unused harmony export Navigation */
 /* unused harmony export isNavigationItemActive */
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "g", function() { return Page$1; });
@@ -56100,13 +56081,11 @@ module.exports = function (KEY) {
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__ApiService__ = __webpack_require__(511);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_axios__ = __webpack_require__(194);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_axios___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_axios__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_axios__ = __webpack_require__(194);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_axios___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_axios__);
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
 
 
 
@@ -56129,6 +56108,7 @@ var SendifySdk = function () {
                 'recipients': recipients
             };
 
+            console.log(recipients.values());
             console.log(data);
 
             return this.call('dispatch', function (response) {
@@ -56139,7 +56119,8 @@ var SendifySdk = function () {
         key: 'getCustomers',
         value: function getCustomers(callback) {
             return this.call('customers', function (response) {
-                return callback(response.data);
+                console.log(response.data.items);
+                return callback(response.data.items);
             });
         }
     }, {
@@ -56157,12 +56138,13 @@ var SendifySdk = function () {
                 data: data
             };
 
-            console.log(options);
-
             // TODO set loading state
             try {
-
-                return __WEBPACK_IMPORTED_MODULE_1_axios__["create"]({ baseURL: options.base, headers: { 'Authorization': 'Bearer ' + options.token }, data: data }).request(options).then(function (response) {
+                return __WEBPACK_IMPORTED_MODULE_0_axios__["create"]({
+                    baseURL: options.base,
+                    headers: { 'Authorization': 'Bearer ' + options.token },
+                    data: data
+                }).request(options).then(function (response) {
                     return callback(response);
                 });
             } catch (e) {
@@ -56179,36 +56161,7 @@ var SendifySdk = function () {
 /* harmony default export */ __webpack_exports__["a"] = (SendifySdk);
 
 /***/ }),
-/* 511 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_axios__ = __webpack_require__(194);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_axios___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_axios__);
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-
-
-var ApiService = function () {
-    function ApiService() {
-        _classCallCheck(this, ApiService);
-    }
-
-    _createClass(ApiService, null, [{
-        key: 'send',
-        value: function send(options) {
-            return __WEBPACK_IMPORTED_MODULE_0_axios__["create"]({ baseURL: options.base, headers: { 'Authorization': 'Bearer ' + options.token } }).request(options);
-        }
-    }]);
-
-    return ApiService;
-}();
-
-/* unused harmony default export */ var _unused_webpack_default_export = (ApiService);
-
-/***/ }),
+/* 511 */,
 /* 512 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -57319,18 +57272,18 @@ var LoadingPage = function (_Component) {
                     __WEBPACK_IMPORTED_MODULE_1__shopify_polaris__["k" /* SkeletonPage */],
                     { primaryAction: true, secondaryActions: 2 },
                     __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
-                        __WEBPACK_IMPORTED_MODULE_1__shopify_polaris__["f" /* Layout */],
+                        __WEBPACK_IMPORTED_MODULE_1__shopify_polaris__["e" /* Layout */],
                         null,
                         __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
-                            __WEBPACK_IMPORTED_MODULE_1__shopify_polaris__["f" /* Layout */].Section,
+                            __WEBPACK_IMPORTED_MODULE_1__shopify_polaris__["e" /* Layout */].Section,
                             null,
                             __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
-                                __WEBPACK_IMPORTED_MODULE_1__shopify_polaris__["e" /* Card */],
+                                __WEBPACK_IMPORTED_MODULE_1__shopify_polaris__["d" /* Card */],
                                 { sectioned: true },
                                 __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(__WEBPACK_IMPORTED_MODULE_1__shopify_polaris__["i" /* SkeletonBodyText */], null)
                             ),
                             __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
-                                __WEBPACK_IMPORTED_MODULE_1__shopify_polaris__["e" /* Card */],
+                                __WEBPACK_IMPORTED_MODULE_1__shopify_polaris__["d" /* Card */],
                                 { sectioned: true },
                                 __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
                                     __WEBPACK_IMPORTED_MODULE_1__shopify_polaris__["l" /* TextContainer */],
@@ -57340,7 +57293,7 @@ var LoadingPage = function (_Component) {
                                 )
                             ),
                             __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
-                                __WEBPACK_IMPORTED_MODULE_1__shopify_polaris__["e" /* Card */],
+                                __WEBPACK_IMPORTED_MODULE_1__shopify_polaris__["d" /* Card */],
                                 { sectioned: true },
                                 __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
                                     __WEBPACK_IMPORTED_MODULE_1__shopify_polaris__["l" /* TextContainer */],
@@ -57351,13 +57304,13 @@ var LoadingPage = function (_Component) {
                             )
                         ),
                         __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
-                            __WEBPACK_IMPORTED_MODULE_1__shopify_polaris__["f" /* Layout */].Section,
+                            __WEBPACK_IMPORTED_MODULE_1__shopify_polaris__["e" /* Layout */].Section,
                             { secondary: true },
                             __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
-                                __WEBPACK_IMPORTED_MODULE_1__shopify_polaris__["e" /* Card */],
+                                __WEBPACK_IMPORTED_MODULE_1__shopify_polaris__["d" /* Card */],
                                 null,
                                 __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
-                                    __WEBPACK_IMPORTED_MODULE_1__shopify_polaris__["e" /* Card */].Section,
+                                    __WEBPACK_IMPORTED_MODULE_1__shopify_polaris__["d" /* Card */].Section,
                                     null,
                                     __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
                                         __WEBPACK_IMPORTED_MODULE_1__shopify_polaris__["l" /* TextContainer */],
@@ -57367,16 +57320,16 @@ var LoadingPage = function (_Component) {
                                     )
                                 ),
                                 __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
-                                    __WEBPACK_IMPORTED_MODULE_1__shopify_polaris__["e" /* Card */].Section,
+                                    __WEBPACK_IMPORTED_MODULE_1__shopify_polaris__["d" /* Card */].Section,
                                     null,
                                     __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(__WEBPACK_IMPORTED_MODULE_1__shopify_polaris__["i" /* SkeletonBodyText */], { lines: 1 })
                                 )
                             ),
                             __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
-                                __WEBPACK_IMPORTED_MODULE_1__shopify_polaris__["e" /* Card */],
+                                __WEBPACK_IMPORTED_MODULE_1__shopify_polaris__["d" /* Card */],
                                 { subdued: true },
                                 __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
-                                    __WEBPACK_IMPORTED_MODULE_1__shopify_polaris__["e" /* Card */].Section,
+                                    __WEBPACK_IMPORTED_MODULE_1__shopify_polaris__["d" /* Card */].Section,
                                     null,
                                     __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
                                         __WEBPACK_IMPORTED_MODULE_1__shopify_polaris__["l" /* TextContainer */],
@@ -57386,7 +57339,7 @@ var LoadingPage = function (_Component) {
                                     )
                                 ),
                                 __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
-                                    __WEBPACK_IMPORTED_MODULE_1__shopify_polaris__["e" /* Card */].Section,
+                                    __WEBPACK_IMPORTED_MODULE_1__shopify_polaris__["d" /* Card */].Section,
                                     null,
                                     __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(__WEBPACK_IMPORTED_MODULE_1__shopify_polaris__["i" /* SkeletonBodyText */], { lines: 2 })
                                 )

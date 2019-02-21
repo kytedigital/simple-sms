@@ -6,6 +6,10 @@ use App\MessageLog;
 use Illuminate\Support\Carbon;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * @property mixed plan
+ * @property mixed billing_on
+ */
 class Subscription extends Model
 {
     protected $fillable = [
@@ -53,7 +57,7 @@ class Subscription extends Model
      */
     public function getRemainingCredits($shop)
     {
-        return $this->plan->message_limit - $this->getPeriodUsage($shop, $this->billing_on);
+        return $this->plan->message_limit - $this->getPeriodUsage($shop);
     }
 
     /**

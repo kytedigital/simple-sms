@@ -1,16 +1,15 @@
 import React, { Component } from 'react';
-import { AppProvider, Page, Layout, TextField, Button, Card, ResourceList, Avatar, TextStyle, Banner } from '@shopify/polaris';
+import { AppProvider, Page, Layout, TextField, Button, Card, ResourceList, OptionList, Avatar, TextStyle, Banner } from '@shopify/polaris';
 import SendifySdk from '../services/SendifySdk';
 import LoadingPage from './LoadingPage';
 
 export default class Dashboard extends Component {
-
     constructor(props) {
         super(props);
 
         this.state = {
             "customers": [],
-            "recipients": [],
+            "selectedRecipientIds": [],
             "message": "",
             "phoneNumber": "",
             "noticeTitle": "",
@@ -18,39 +17,76 @@ export default class Dashboard extends Component {
         };
     }
 
-    componentWillMount() {
-        SendifySdk.getCustomers((response) => { this.setState({ "customers": response }); });
+    customersAsOptions() {
+        return this.state.customers.map((customer) => {
+            return {'value': customer.id, 'label': `${customer.first_name} ${customer.last_name} (${customer.phone})`};
+        });
     }
 
-    sendMessage(field) {
-        // TODO: Validation?
-        let message = this.state.message;
-        let phone = this.state.phoneNumber;
-        let recipients = [{ "first_name": "Testy", "last_name": "Testerson", "phone": phone }];
-
-        console.log(recipients);
-
-        SendifySdk.sendMessage(message, recipients, (response) => {
-            this.setState({ "noticeTitle": "Sent!", "notice": response });
+    selectedRecipients() {
+        return this.state.customers.filter((customer) => {
+            return this.state.selectedRecipientIds.indexOf(customer.id) !== -1;
         });
+    }
 
-        console.log(message);
-        console.log(field);
+    componentWillMount() {
+        SendifySdk.getCustomers((customers) => {this.setState({"customers": customers})});
+    }
+
+    sendMessage(testMode = false) {
+        if(!this.state.message) {
+            this.setState({"noticeTitle": 'Missing Details', "notice": 'Please add a message to send'});
+            return;
+        }
+
+        if(testMode && !this.state.phoneNumber) {
+            this.setState({"noticeTitle": 'Missing Details', "notice": 'Please add a test number to target..'});
+            return;
+        }
+
+        if(!testMode && !this.state.selectedRecipientIds.length) {
+            this.setState({"noticeTitle": 'Missing Details', "notice": 'Please add recipients to send to.'});
+            return;
+        }
+
+        this.setState({"noticeTitle": 'Sending...', "notice": 'Sending your message, the status will be updated here when it completes.'});
+
+        let recipients = [];
+        if(!testMode) {
+            recipients = this.selectedRecipients();
+        } else {
+            recipients = [{"first_name": "Testy", "last_name": "Testerson", "phone": this.state.phoneNumber}];
+        }
+
+        SendifySdk.sendMessage(this.state.message, recipients, (response) => {
+            let title = response.status === 200 ? 'Sent!' : 'Oops, a problem occurred.';
+            console.log(response);
+            this.setState({"noticeTitle": title, "notice": response.message});
+        });
     };
 
     render() {
-
-        console.log('customers', this.state);
-
-        if (!this.state.customers.items) {
+        if (!this.state.customers) {
             return <LoadingPage />
         }
 
         let notice = '';
         if(this.state.notice) {
-            notice = (<Banner title={this.state.noticeTitle} onDismiss={ () => {this.setState({'notice': ''})} }>
-                        <p>{this.state.notice}</p>
-                     </Banner>);
+            notice = (<Banner title={this.state.noticeTitle} onDismiss={() => {this.setState({'notice': ''})}}>
+                {this.state.notice}
+            </Banner>);
+        }
+
+        let customers = '';
+        if(this.state.customers.length) {
+            customers = <OptionList
+                onChange={(updated) => {this.setState({selectedRecipientIds: updated});}}
+                options={this.customersAsOptions()}
+                selected={this.state.selectedRecipientIds}
+                allowMultiple
+            />
+        } else {
+            customers = "Loading..."
         }
 
         return <AppProvider>
@@ -60,64 +96,55 @@ export default class Dashboard extends Component {
                 >
                     <Layout>
                         <Layout.Section secondary>
-                            <Card title="Available Customers" actions={[{content: 'choose'}]}>
+                            <Card title={`Test Number`}>
                                 <Card.Section>
-                                    <TextStyle variation="subdued">{this.state.customers.items.length} customers available</TextStyle>
-                                </Card.Section>
-                                <Card.Section title="People">
-                                    <ResourceList
-                                        resourceName={{singular: 'customer', plural: 'customers'}}
-                                        items={this.state.customers.items}
-                                        renderItem={(item) => {
-                                            const {id, first_name, last_name, phone} = item;
-                                            const media = <Avatar customer size="medium" name={`${first_name} ${last_name}`} />;
-
-                                            return (
-                                                <ResourceList.Item
-                                                    id={id}
-                                                    url={`/admin/customers/` + id}
-                                                    media={media}
-                                                    accessibilityLabel={`View details for ${first_name} ${last_name}`}
-                                                >
-                                                    <h3>
-                                                        <TextStyle variation="strong">{first_name} {last_name}</TextStyle>
-                                                    </h3>
-                                                    <div>{phone}</div>
-                                                </ResourceList.Item>
-                                            );
-                                        }}
+                                    <TextField
+                                        label="Phone"
+                                        type="phone"
+                                        helpText={
+                                            <span>Phone number for message tests.</span>
+                                        }
+                                        value={this.state.phoneNumber}
+                                        onChange={(value) => this.setState({phoneNumber: value})}
                                     />
+                                </Card.Section>
+                            </Card>
+                            <Card title={`Available Customers (${this.state.customers.length})`} actions={[{content: 'Select All'}]}>
+                                <Card.Section>
+                                    {customers}
                                 </Card.Section>
                             </Card>
                         </Layout.Section>
                         <Layout.Section>
-                            <Card title="Prepare to send..." actions={[{content: 'choose'}]}>
-                                {notice}
-                                <Card.Section title="Your Message">
+                            {notice}
+                            <Card title="Prepare to send..."
+                                  secondaryFooterAction={{content: 'Send Test', onAction: () => this.sendMessage(true) }}
+                                  primaryFooterAction={{content: 'Send', onAction: () => this.sendMessage() }}
+                            >
+                                <Card.Section>
                                     <TextField name={'message'}
-                                               label={"Message to send"}
+                                               label={"Your message to customers:"}
                                                multiline
                                                placeholder="e.g. Hi {first_name}, just to let you know, {store} are
                                                             having a massive 20% off sale this weekend.
                                                             Use code WEEKENDSAVINGS to claim your discount."
                                                value={this.state.message}
-                                               onChange={(value) => this.setState({ message: value })}
+                                               onChange={(value) => this.setState({message: value})}
                                     />
                                 </Card.Section>
                                 <Card.Section>
                                     <TextStyle variation="subdued">Available placeholders: </TextStyle>
                                 </Card.Section>
                                 <Card.Section>
-                                    <TextStyle variation="subdued">{ this.state.recipients.length } recipients selected</TextStyle>
+                                    <TextStyle variation="subdued">{this.state.selectedRecipientIds.length} recipients selected</TextStyle>
                                 </Card.Section>
                                 <Card.Section title="Recipients">
                                     <ResourceList
                                         resourceName={{singular: 'customer', plural: 'customers'}}
-                                        items={this.state.recipients}
+                                        items={this.selectedRecipients()}
                                         renderItem={(item) => {
                                             const {id, first_name, last_name, phone} = item;
                                             const media = <Avatar customer size="medium" name={`${first_name} ${last_name}`} />;
-
                                             return (
                                                 <ResourceList.Item
                                                     id={id}
@@ -133,22 +160,6 @@ export default class Dashboard extends Component {
                                             );
                                         }}
                                     />
-                                </Card.Section>
-                                <Card.Section>
-                                    <TextStyle variation="subdued">Test and Send</TextStyle>
-                                </Card.Section>
-                                <Card.Section title="Recipients">
-                                    <TextField
-                                        label="Phone"
-                                        type="phone"
-                                        helpText={
-                                            <span>Send a single message to this test number.</span>
-                                        }
-                                        value={this.state.phoneNumber}
-                                        onChange={(value) => this.setState({ phoneNumber: value })}
-                                    />
-                                    <Button onClick={() => this.sendMessage()}>Send single test recipient.</Button><br/>
-                                    <Button primary onClick={() => this.sendMessage()}>SEND TO CUSTOMERS</Button>
                                 </Card.Section>
                             </Card>
                         </Layout.Section>

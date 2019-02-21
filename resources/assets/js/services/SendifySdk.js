@@ -1,8 +1,6 @@
-import ApiService from './ApiService';
 import * as axios from "axios";
 
 export default class SendifySdk {
-
     static version () {
         return '0.1';
     }
@@ -14,6 +12,7 @@ export default class SendifySdk {
             'recipients': recipients
         };
 
+        console.log(recipients.values());
         console.log(data);
 
         return this.call('dispatch', function(response) {
@@ -23,7 +22,8 @@ export default class SendifySdk {
 
     static getCustomers(callback) {
         return this.call('customers', function(response) {
-            return callback(response.data);
+            console.log(response.data.items);
+            return callback(response.data.items);
         });
     }
 
@@ -37,22 +37,21 @@ export default class SendifySdk {
             data: data
         };
 
-        console.log(options);
-
         // TODO set loading state
         try {
-
-            return axios.create({ baseURL: options.base, headers: { 'Authorization': 'Bearer ' + options.token }, data})
-                        .request(options)
-                        .then((response) => {
-                            return callback(response);
-                        });
-
+            return axios.create({
+                    baseURL: options.base,
+                    headers: { 'Authorization': 'Bearer ' + options.token },
+                    data
+                })
+                .request(options)
+                .then((response) => {
+                    return callback(response);
+                });
         } catch(e) {
 
             // Handle the promise rejection TODO: Didn't work
             console.log(e);
-
         }
     }
 }

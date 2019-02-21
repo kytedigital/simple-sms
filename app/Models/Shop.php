@@ -2,10 +2,11 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use App\Http\Helpers\Shopify;
 use App\Services\Shopify\Client;
-use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Log;
 
 class Shop extends Model
 {
@@ -26,9 +27,11 @@ class Shop extends Model
      */
     public function subscription()
     {
-        $activeCharges = $this->charges()->where('status', 'active');
+        $charges = $this->charges();
 
-        if($this->charges()->where('status', 'active')->count()) {
+        $activeCharges = $charges->where('status', 'active');
+
+        if($activeCharges->count()) {
             $data = (array) $activeCharges->first();
 
             // Parse these otherwise laravel spins out.
@@ -48,14 +51,16 @@ class Shop extends Model
      */
     public function charges()
     {
-        $charges = collect(json_decode(
-            $this->client()
+        try {
+            $charges = json_decode($this->client()
                 ->get("/admin/recurring_application_charges.json")
                 ->getBody()
-                ->getContents())->recurring_application_charges
-        );
+                ->getContents())->recurring_application_charges;
 
-        return $charges;
+            return collect($charges);
+        } catch(\Exception $exception) {
+            Log::error($exception->getMessage());
+        }
     }
 
     /**
