@@ -37,13 +37,13 @@ return [
 
     'guards' => [
         'web' => [
-            'driver' => 'session',
-            'provider' => 'users',
+            'driver' => 'api-token',
+            'provider' => 'shops',
         ],
 
         'api' => [
-            'driver' => 'token',
-            'provider' => 'users',
+            'driver' => 'api-token',
+            'provider' => 'shops',
         ],
     ],
 
@@ -65,9 +65,9 @@ return [
     */
 
     'providers' => [
-        'users' => [
+        'shops' => [
             'driver' => 'eloquent',
-            'model' => App\User::class,
+            'model' => App\Models\Shop::class,
         ],
 
         // 'users' => [

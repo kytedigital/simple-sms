@@ -10,7 +10,8 @@
 | used to check if an authenticated user can listen to the channel.
 |
 */
+use Illuminate\Http\Request;
 
-Broadcast::channel('App.User.{id}', function ($user, $id) {
-    return (int) $user->id === (int) $id;
+Broadcast::channel('shop.{shop}', function ($user, $shop) {
+    return $shop === app(Request::class)->get('shop');
 });

@@ -30,7 +30,6 @@ class EventServiceProvider extends ServiceProvider
         parent::boot();
 
         Event::listen(MessageDispatchCompleted::class, function ($event) {
-
             $message = (array) $event->message;
             $message['channel'] = $event->channel;
             $message['recipients'] = $message['recipient']['phone'];

@@ -10,6 +10,8 @@ use Illuminate\Queue\InteractsWithQueue;
 use App\Events\MessageDispatchCompleted;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
+use App\Services\BurstSms\Responses\BurstSmsGuzzleResponse;
+use App\Services\BurstSms\Responses\FakeBurstSmsGuzzleResponse;
 
 /**
  * @property array recipient
@@ -64,9 +66,12 @@ class DispatchMessage implements ShouldQueue
     {
         $message = (new Message($this->recipient, $this->message));
 
-        $response = $client->request('POST', 'send-sms.json', [
-            'form_params' => $message->__toArray($this->channel)
-        ]);
+//        $response = new BurstSmsGuzzleResponse($client->request('POST', 'send-sms.json', [
+//            'form_params' => $message->__toArray($this->channel)
+//        ]));
+
+        // Cheap mode!
+        $response = new FakeBurstSmsGuzzleResponse();
 
         $this->dispatchEvent($message, $response);
 
@@ -88,8 +93,8 @@ class DispatchMessage implements ShouldQueue
      */
     private function dispatchEvent($message, $response) : void
     {
-        $message->status = $response->getStatusCode();
-        $message->responseMessage = $response->getBody();
+        $message->status = $response->status;
+        $message->responseMessage = $response->message;
         $message->sendCount = 1;
 
         MessageDispatchCompleted::dispatch($this->channel, $message, $this->shop);

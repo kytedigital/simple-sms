@@ -53,7 +53,7 @@ class HandleCors
         if (! $response->headers->has('Access-Control-Allow-Origin')) {
             $response->headers->set('Access-Control-Allow-Origin', '*');
             $response->headers->set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, HEAD');
-            $response->headers->set('Access-Control-Allow-Headers', 'Authorization, Content-Type, Accept');
+            $response->headers->set('Access-Control-Allow-Headers', 'Authorization, Content-Type, Accept, X-CSRF-TOKEN, X-Requested-With');
         }
 
         return $response;

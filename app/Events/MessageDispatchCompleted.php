@@ -42,7 +42,6 @@ class MessageDispatchCompleted implements ShouldBroadcast
      */
     public function broadcastOn()
     {
-        return new Channel('messages');
-       // return new PrivateChannel('channel-name');
+        return new PrivateChannel("shop.{$this->shop}");
     }
 }

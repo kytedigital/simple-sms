@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Api;
 use Exception;
 use App\Models\Shop;
 use App\Jobs\DispatchMessage;
-use http\Env\Response;
 use Illuminate\Support\Collection;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\MessageDispatchRequest;
@@ -12,7 +11,7 @@ use App\Http\Requests\MessageDispatchRequest;
 class MessageController extends Controller
 {
     /**
-     *
+     * Extractable Shop Properties // TODO: Move into shop model
      */
     const SHOP_PROPERTIES = [
         'name',
@@ -33,7 +32,7 @@ class MessageController extends Controller
      */
     public function send(MessageDispatchRequest $request)
     {
-        $shop = $this->getShop($request->json('shop'));
+        $shop = $this->getShop($request->get('shop'));
 
         $subscription = $shop->subscription();
 
@@ -56,7 +55,6 @@ class MessageController extends Controller
         if(($credits < $recipients->count()) && $request->json('enable_partial', false)) {
             $chunk = $credits;
         }
-
 
         try {
             $channels = $this->cleanChannels($request->json('channels'));
@@ -81,22 +79,15 @@ class MessageController extends Controller
             }
 
             return response()->json([
-                'message' => 'OK',
+                'message' => 'Queued.',
                 'count'   => $count,
-              //  'recipients' => json_encode($recipients), // TODO - Wont work for other channels.
             ]);
-
         } catch (Exception $exception) {
             return response()->json([
                 'message' => $exception->getMessage() .' in '.  $exception->getFile() .' line '. $exception->getLine(),
                 'status' => $exception->getCode()
             ]);
         }
-
-        return response()->json([
-            'message' => 'OK',
-            'recipients' => json_encode($recipients), // TODO - Wont work for other channels.
-        ]);
     }
 
     /**
@@ -110,7 +101,7 @@ class MessageController extends Controller
 
     /**
      * @param $shopName
-     * @return
+     * @return Shop
      */
     private function getShop($shopName)
     {

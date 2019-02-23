@@ -15,6 +15,8 @@ export default class Dashboard extends Component {
             "noticeTitle": "",
             "notice": ""
         };
+
+        console.log('echo', window.Echo);
     }
 
     customersAsOptions() {

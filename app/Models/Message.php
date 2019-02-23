@@ -10,7 +10,7 @@ class Message
 
     public $message = '';
 
-    public $stats;
+    public $status;
 
     public $responseMessage;
 

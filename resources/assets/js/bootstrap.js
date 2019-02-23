@@ -1,6 +1,6 @@
 
-window._ = require('lodash');
-window.Popper = require('popper.js').default;
+// window._ = require('lodash');
+// window.Popper = require('popper.js').default;
 
 /**
  * We'll load jQuery and the Bootstrap jQuery plugin which provides support
@@ -8,11 +8,11 @@ window.Popper = require('popper.js').default;
  * code may be modified to fit the specific needs of your application.
  */
 
-try {
-    window.$ = window.jQuery = require('jquery');
-
-    require('bootstrap');
-} catch (e) {}
+// try {
+//     window.$ = window.jQuery = require('jquery');
+//
+//     require('bootstrap');
+// } catch (e) {}
 
 /**
  * We'll load the axios HTTP library which allows us to easily issue requests
@@ -44,13 +44,24 @@ if (token) {
  * allows your team to easily build robust real-time web applications.
  */
 
-// import Echo from 'laravel-echo'
+import Echo from 'laravel-echo'
 
-// window.Pusher = require('pusher-js');
+window.Pusher = require('pusher-js');
 
-// window.Echo = new Echo({
-//     broadcaster: 'pusher',
-//     key: process.env.MIX_PUSHER_APP_KEY,
-//     cluster: process.env.MIX_PUSHER_APP_CLUSTER,
-//     encrypted: true
-// });
+let shop = document.head.querySelector('meta[name="shop"]');
+let apiToken = document.head.querySelector('meta[name="api-token"]');
+
+window.Echo = new Echo({
+    broadcaster: 'pusher',
+    key: 'a8b8e4a570934dd3bc44',
+    cluster: 'ap1',
+    encrypted: true
+});
+
+window.Echo.connector.pusher.config.auth.headers['Authorization'] = 'Bearer '+apiToken.content;
+
+window.Echo
+    .private('shop.'+shop.content)
+    .listen('MessageDispatchCompleted', e => {
+    console.log(e);
+});
