@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\MessageDispatchCompleted;
 use Carbon\Carbon;
 use App\Models\Shop;
 use App\Models\Token;
@@ -46,7 +47,6 @@ class DashboardController extends Controller
             $shop = $shop->where(['name' => $this->shopName()])->firstOrFail();
 
             if(!$shop->token) $this->startInstall($request);
-
         } catch(ModelNotFoundException $exception) {
             return view('error', ['message' => __('errors.installation')]);
         }
@@ -69,8 +69,6 @@ class DashboardController extends Controller
         $redirectUrl = config('app.url') .'/token';
 
         $request->session()->put('nounce', md5($this->shopName() . time()));
-
-        dd('start install');
 
         return response()->redirectTo(
             "https://{$this->shopName()}.myshopify.com/admin/oauth/authorize?client_id={$this->clientId}&scope=read_customers&redirect_uri=$redirectUrl&state=".session('nounce')

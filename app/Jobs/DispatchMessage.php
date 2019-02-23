@@ -3,13 +3,13 @@
 namespace App\Jobs;
 
 use App\Models\Message;
-use App\Models\Shop;
 use Illuminate\Bus\Queueable;
 use App\Services\BurstSms\Client;
+use Illuminate\Support\Collection;
 use Illuminate\Queue\InteractsWithQueue;
+use App\Events\MessageDispatchCompleted;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Support\Collection;
 
 /**
  * @property array recipient
@@ -42,7 +42,7 @@ class DispatchMessage implements ShouldQueue
      * Create a new job instance.
      *
      * @param string $channel
-     * @param array $recipient
+     * @param Collection $recipient
      * @param string $text
      * @param string $shop
      */
@@ -62,11 +62,10 @@ class DispatchMessage implements ShouldQueue
      */
     public function handle(Client $client)
     {
-        $message = (new Message($this->recipient, $this->message))
-                                ->__toArray($this->channel);
+        $message = (new Message($this->recipient, $this->message));
 
         $response = $client->request('POST', 'send-sms.json', [
-            'form_params' => $message
+            'form_params' => $message->__toArray($this->channel)
         ]);
 
         $this->dispatchEvent($message, $response);
@@ -84,19 +83,15 @@ class DispatchMessage implements ShouldQueue
     }
 
     /**
-     * @param $event
+     * @param $message
      * @param $response
      */
-    private function dispatchEvent($event, $response) : void
+    private function dispatchEvent($message, $response) : void
     {
-        $event['status'] = $response->getStatusCode();
-        $event['responseMessage'] = $response->getBody();
-        $event['sendCount'] = 1;
+        $message->status = $response->getStatusCode();
+        $message->responseMessage = $response->getBody();
+        $message->sendCount = 1;
 
-        event('message.sent', [
-            'channel' => $this->channel,
-            'message' => $event,
-            'shop' => $this->shop
-        ]);
+        MessageDispatchCompleted::dispatch($this->channel, $message, $this->shop);
     }
 }

@@ -10,6 +10,12 @@ class Message
 
     public $message = '';
 
+    public $stats;
+
+    public $responseMessage;
+
+    public $sendCount;
+
     /**
      * Message constructor.
      * @param Collection $recipient
