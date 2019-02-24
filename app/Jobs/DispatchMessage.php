@@ -66,12 +66,12 @@ class DispatchMessage implements ShouldQueue
     {
         $message = (new Message($this->recipient, $this->message));
 
-//        $response = new BurstSmsGuzzleResponse($client->request('POST', 'send-sms.json', [
-//            'form_params' => $message->__toArray($this->channel)
-//        ]));
+        $response = new BurstSmsGuzzleResponse($client->request('POST', 'send-sms.json', [
+            'form_params' => $message->__toArray($this->channel)
+        ]));
 
         // Cheap mode!
-        $response = new FakeBurstSmsGuzzleResponse();
+       // $response = new FakeBurstSmsGuzzleResponse();
 
         $this->dispatchEvent($message, $response);
 
@@ -84,7 +84,7 @@ class DispatchMessage implements ShouldQueue
          * The first is the HTTP status code 429 "Too Many Requests", the second is the error
          * code "OVER_LIMIT" in the error block of the response body.
          */
-        sleep(0.5);
+        sleep(0.1);
     }
 
     /**

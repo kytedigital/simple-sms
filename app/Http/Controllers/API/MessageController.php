@@ -79,11 +79,13 @@ class MessageController extends Controller
             }
 
             return response()->json([
-                'message' => 'Queued.',
+                'status' => 200,
+                'message' => 'Messages are sending.',
                 'count'   => $count,
             ]);
         } catch (Exception $exception) {
             return response()->json([
+                'stats' => 500,
                 'message' => $exception->getMessage() .' in '.  $exception->getFile() .' line '. $exception->getLine(),
                 'status' => $exception->getCode()
             ]);

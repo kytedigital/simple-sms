@@ -3,7 +3,6 @@ import * as ReactDOM from "react-dom";
 import Dashboard from './Dashboard';
 
 export class SendifyLoader {
-
     static version () {
         return '0.1';
     }
@@ -15,7 +14,6 @@ export class SendifyLoader {
      * @param elementId
      */
     static bind (options, elementId) {
-
         document.addEventListener("DOMContentLoaded", () => {
 
             console.log('Sendify Loader Version ' + SendifyLoader.version());
@@ -29,7 +27,6 @@ export class SendifyLoader {
                 ReactDOM.render(<Dashboard />, document.getElementById(elementId));
             }
         });
-
     }
 }
 

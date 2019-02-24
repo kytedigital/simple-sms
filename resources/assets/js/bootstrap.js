@@ -59,9 +59,3 @@ window.Echo = new Echo({
 });
 
 window.Echo.connector.pusher.config.auth.headers['Authorization'] = 'Bearer '+apiToken.content;
-
-window.Echo
-    .private('shop.'+shop.content)
-    .listen('MessageDispatchCompleted', e => {
-    console.log(e);
-});

@@ -1,4 +1,4 @@
-@extends('layouts.polaris')
+@extends('layouts.polaris-error')
 
 @section('title', 'Ut Oh')
 

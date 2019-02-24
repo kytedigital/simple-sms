@@ -1,7 +1,12 @@
 import React, { Component } from 'react';
-import { AppProvider, Page, Layout, TextField, Button, Card, ResourceList, OptionList, Avatar, TextStyle, Banner } from '@shopify/polaris';
+import { AppProvider, Page, Layout, TextField, Card, TextStyle } from '@shopify/polaris';
 import SendifySdk from '../services/SendifySdk';
+import AvailablePlaceholders from './AvailablePlaceholders';
 import LoadingPage from './LoadingPage';
+import RecipientsList from "./RecipientsList";
+import BannerNotice from "./BannerNotice";
+import CustomerList from "./CustomerList";
+import TestNumber from "./TestNumber";
 
 export default class Dashboard extends Component {
     constructor(props) {
@@ -13,10 +18,30 @@ export default class Dashboard extends Component {
             "message": "",
             "phoneNumber": "",
             "noticeTitle": "",
-            "notice": ""
+            "notice": "",
+            "dispatchDetails": [],
+            "status": 0,
+            "statusMessage": "Pending"
         };
 
-        console.log('echo', window.Echo);
+        this.listenToEchos()
+    }
+
+    listenToEchos() {
+        window.Echo.private('shop.'+window.Sendify.shop)
+                    .listen('MessageDispatchCompleted', (details) => {this.messageCompleteEcho(details);});
+    }
+
+    messageCompleteEcho(details) {
+        const newDetails = {
+                'recipient': details.message.recipient.id,
+                'message': details.message.responseMessage,
+                'status': details.message.status
+            };
+
+        this.setState({
+            dispatchDetails: [...this.state.dispatchDetails, newDetails]
+        });
     }
 
     customersAsOptions() {
@@ -31,8 +56,36 @@ export default class Dashboard extends Component {
         });
     }
 
+    selectedRecipientsWithStatuses() {
+        let recipients = this.selectedRecipients();
+        return recipients.map((customer) => {
+            const dispatchDetails = this.getRecipientDispatchDetails(customer.id);
+
+            customer.dispatchStatus = dispatchDetails.length ? dispatchDetails[0].status : this.state.status;
+            customer.dispatchMessage = dispatchDetails.length ? dispatchDetails[0].message : this.state.statusMessage;
+
+            console.log(customer);
+
+            return customer;
+        })
+    }
+
+    getRecipientDispatchDetails(recipientId) {
+        return this.state.dispatchDetails.filter((object) => {
+            return object.recipient === recipientId;
+        });
+    }
+
     componentWillMount() {
         SendifySdk.getCustomers((customers) => {this.setState({"customers": customers})});
+    }
+
+    clearNotices() {
+        this.setState({'notice': '', 'noticeTitle': ''});
+    }
+
+    changeCustomers(updated) {
+        this.setState({selectedRecipientIds: updated});
     }
 
     sendMessage(testMode = false) {
@@ -51,7 +104,11 @@ export default class Dashboard extends Component {
             return;
         }
 
-        this.setState({"noticeTitle": 'Sending...', "notice": 'Sending your message, the status will be updated here when it completes.'});
+        this.setState({
+            "status": 1,
+            "noticeTitle": 'Sending...',
+            "notice": 'Sending your message, the status will be updated here when it completes.'
+        });
 
         let recipients = [];
         if(!testMode) {
@@ -61,34 +118,18 @@ export default class Dashboard extends Component {
         }
 
         SendifySdk.sendMessage(this.state.message, recipients, (response) => {
-            let title = response.status === 200 ? 'Sent!' : 'Oops, a problem occurred.';
-            console.log(response);
-            this.setState({"noticeTitle": title, "notice": response.message});
+            let title = response.status === 200 ? 'Success' : 'Oops, a problem occurred.';
+            this.setState({"noticeTitle": title, "notice": response.message, "status": response.status});
         });
     };
+
+    changeTestNumber(number) {
+        this.setState({"phoneNumber": number})
+    }
 
     render() {
         if (!this.state.customers) {
             return <LoadingPage />
-        }
-
-        let notice = '';
-        if(this.state.notice) {
-            notice = (<Banner title={this.state.noticeTitle} onDismiss={() => {this.setState({'notice': ''})}}>
-                {this.state.notice}
-            </Banner>);
-        }
-
-        let customers = '';
-        if(this.state.customers.length) {
-            customers = <OptionList
-                onChange={(updated) => {this.setState({selectedRecipientIds: updated});}}
-                options={this.customersAsOptions()}
-                selected={this.state.selectedRecipientIds}
-                allowMultiple
-            />
-        } else {
-            customers = "Loading..."
         }
 
         return <AppProvider>
@@ -98,30 +139,26 @@ export default class Dashboard extends Component {
                 >
                     <Layout>
                         <Layout.Section secondary>
-                            <Card title={`Test Number`}>
-                                <Card.Section>
-                                    <TextField
-                                        label="Phone"
-                                        type="phone"
-                                        helpText={
-                                            <span>Phone number for message tests.</span>
-                                        }
-                                        value={this.state.phoneNumber}
-                                        onChange={(value) => this.setState({phoneNumber: value})}
-                                    />
-                                </Card.Section>
-                            </Card>
+                            <TestNumber number={this.state.phoneNumber} onChange={this.changeTestNumber.bind(this)} />
                             <Card title={`Available Customers (${this.state.customers.length})`} actions={[{content: 'Select All'}]}>
                                 <Card.Section>
-                                    {customers}
+                                    <CustomerList
+                                        onChange={this.changeCustomers.bind(this)}
+                                        options={this.customersAsOptions()}
+                                        selected={this.state.selectedRecipientIds}
+                                        customers={this.state.customers}
+                                    />
                                 </Card.Section>
                             </Card>
                         </Layout.Section>
                         <Layout.Section>
-                            {notice}
-                            <Card title="Prepare to send..."
-                                  secondaryFooterAction={{content: 'Send Test', onAction: () => this.sendMessage(true) }}
-                                  primaryFooterAction={{content: 'Send', onAction: () => this.sendMessage() }}
+                            <BannerNotice
+                                title={this.state.noticeTitle}
+                                notice={this.state.notice}
+                                onDismiss={this.clearNotices.bind(this)}
+                            />
+                            <Card secondaryFooterAction={{content: 'Send Test', onAction: () => this.sendMessage(true)}}
+                                  primaryFooterAction={{content: 'Send', onAction: () => this.sendMessage()}}
                             >
                                 <Card.Section>
                                     <TextField name={'message'}
@@ -134,35 +171,8 @@ export default class Dashboard extends Component {
                                                onChange={(value) => this.setState({message: value})}
                                     />
                                 </Card.Section>
-                                <Card.Section>
-                                    <TextStyle variation="subdued">Available placeholders: </TextStyle>
-                                </Card.Section>
-                                <Card.Section>
-                                    <TextStyle variation="subdued">{this.state.selectedRecipientIds.length} recipients selected</TextStyle>
-                                </Card.Section>
-                                <Card.Section title="Recipients">
-                                    <ResourceList
-                                        resourceName={{singular: 'customer', plural: 'customers'}}
-                                        items={this.selectedRecipients()}
-                                        renderItem={(item) => {
-                                            const {id, first_name, last_name, phone} = item;
-                                            const media = <Avatar customer size="medium" name={`${first_name} ${last_name}`} />;
-                                            return (
-                                                <ResourceList.Item
-                                                    id={id}
-                                                    url={`/admin/customers/` + id}
-                                                    media={media}
-                                                    accessibilityLabel={`View details for ${first_name} ${last_name}`}
-                                                >
-                                                    <h3>
-                                                        <TextStyle variation="strong">{first_name} {last_name}</TextStyle>
-                                                    </h3>
-                                                    <div>{phone}</div>
-                                                </ResourceList.Item>
-                                            );
-                                        }}
-                                    />
-                                </Card.Section>
+                                <AvailablePlaceholders />
+                                <RecipientsList recipients={this.selectedRecipientsWithStatuses()} />
                             </Card>
                         </Layout.Section>
                     </Layout>
