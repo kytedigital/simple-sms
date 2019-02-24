@@ -45,7 +45,11 @@ export default class Dashboard extends Component {
     }
 
     customersAsOptions() {
-        return this.state.customers.map((customer) => {
+        let customers = this.state.customers.filter((customer) => {
+            return customer.phone && customer.accepts_marketing;
+        });
+
+        return customers.map((customer) => {
             return {'value': customer.id, 'label': `${customer.first_name} ${customer.last_name} (${customer.phone})`};
         });
     }

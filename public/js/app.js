@@ -3929,7 +3929,11 @@ var Dashboard = function (_Component) {
     }, {
         key: 'customersAsOptions',
         value: function customersAsOptions() {
-            return this.state.customers.map(function (customer) {
+            var customers = this.state.customers.filter(function (customer) {
+                return customer.phone && customer.accepts_marketing;
+            });
+
+            return customers.map(function (customer) {
                 return { 'value': customer.id, 'label': customer.first_name + ' ' + customer.last_name + ' (' + customer.phone + ')' };
             });
         }
