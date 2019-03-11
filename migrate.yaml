@@ -1,0 +1,17 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: migrate
+  labels:
+    config: "5"
+spec:
+  template:
+    spec:
+      containers:
+        - name: migration
+          image: gcr.io/shopify-sms/shopify-sms-worker:0.7
+          command: ["php",  "artisan", "migrate", "--force"]
+          envFrom:
+            - configMapRef:
+                name: api
+      restartPolicy: Never

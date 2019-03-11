@@ -53,7 +53,7 @@ class DashboardController extends Controller
 
         $token = $this->generateApiToken();
 
-        if(!$shop->hasSubscription()) return view('subscription', ['subscription' => null, 'shop' => $this->shopName()]);
+        if(!$shop->hasSubscription()) return view('subscription', ['subscription' => null, 'token' => $token, 'shop' => $this->shopName()]);
 
         return view('dashboard', ['subscription' => $shop->subscription(), 'token' => $token, 'shop' => $this->shopName()]);
     }

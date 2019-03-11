@@ -19,6 +19,8 @@ class Shop extends Model
      */
     public function hasSubscription()
     {
+        if(!$charges = $this->charges()) return null;
+
         return (bool) $this->charges()->where('status', 'active')->count();
     }
 
@@ -60,6 +62,7 @@ class Shop extends Model
             return collect($charges);
         } catch(\Exception $exception) {
             Log::error($exception->getMessage());
+            return null;
         }
     }
 

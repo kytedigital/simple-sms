@@ -20,7 +20,7 @@ class CheckForShop
     {
 
         if (!session('shop') && !$request->has('shop')) {
-           // return redirect(route('refresh'));
+             return redirect(route('refresh'));
         }
 
         return $next($request);

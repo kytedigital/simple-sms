@@ -1,0 +1,10 @@
+.env
+.phpunit.result.cache
+Homestead.json
+Homestead.yaml
+npm-debug.log
+yarn-error.log
+docker-compose.yml
+app.yaml
+config.yaml
+Dockerfile.worker

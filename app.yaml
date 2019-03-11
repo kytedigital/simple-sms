@@ -1,37 +1,88 @@
-runtime: php
-env: flex
-
-runtime_config:
-  document_root: public
-
-# Ensure we skip ".env", which is only for local development
-skip_files:
-  - .env
-
-env_variables:
-  APP_ENV: production
-  APP_LOG: errorlog
-  APP_DEBUG: true
-  APP_KEY: base64:q0fxs6z6ngsUSOXA19yPedtTRkpTchoQ3k4vshmF0vI=
-  APP_URL: https://emperor.appspot.com
-  CACHE_DRIVER: file
-  SESSION_DRIVER: database
-  DB_HOST: localhost
-  DB_CONNECTION: mysql
-  DB_DATABASE: app_service
-  DB_USERNAME: app_service
-  DB_PASSWORD: "@1withPenguins"
-  DB_SOCKET: /cloudsql/emperor:australia-southeast1:emperor-db-au-1
-  MYSQL_DSN: mysql:dbname=app_service;unix_socket=cloudsql/emperor:australia-southeast1:emperor-db-au-1
-  BURST_SMS_API_KEY: 230e4ea0fd45e3cba4c93d5bf3d9c296
-  BURST_SMS_API_SECRET: apisecretkey
-  BURST_SMS_API_BASE: https://api.transmitsms.com/
-  BURST_SMS_FIXED_NUMBER: 61428974807
-  STORAGE_DIR: /tmp
-  MESSAGING_CHANNELS: sms
-  APP_TIMEZONE: Australia/Melbourne
-
-beta_settings:
-  # for Cloud SQL, set this value to the Cloud SQL connection name,
-  # e.g. "project:region:cloudsql-instance"
-  cloud_sql_instances: "emperor:australia-southeast1:emperor-db-au-1"
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: api
+  template:
+    metadata:
+      labels:
+        name: api
+        config: "1"
+    spec:
+      containers:
+        - name: api
+          image: gcr.io/shopify-sms/shopify-sms:0.8
+          imagePullPolicy: IfNotPresent
+          envFrom:
+            - configMapRef:
+                name: api
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: worker
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: worker
+  template:
+    metadata:
+      labels:
+        name: worker
+        config: "1"
+    spec:
+      containers:
+        - name: worker
+          image: gcr.io/shopify-sms/shopify-sms-worker:0.8
+          imagePullPolicy: IfNotPresent
+          envFrom:
+            - configMapRef:
+                name: api
+---
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: scheduler
+spec:
+  schedule: "*/1 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+            - name: scheduler
+              image: gcr.io/shopify-sms/shopify-sms:0.8
+              command: ["php", "artisan", "schedule:run"]
+          restartPolicy: OnFailure
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: api-web
+spec:
+  type: NodePort
+  selector:
+    name: api
+  ports:
+    - name: http
+      protocol: TCP
+      port: 80
+      targetPort: 80
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: api-edge
+  annotations:
+    kubernetes.io/ingress.global-static-ip-name: "shopify-sms"
+spec:
+  tls:
+    - secretName: shopify-sms.apps
+  backend:
+    serviceName: api-web
+    servicePort: 80
