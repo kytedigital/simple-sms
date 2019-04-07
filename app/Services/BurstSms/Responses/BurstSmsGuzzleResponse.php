@@ -2,11 +2,14 @@
 
 namespace App\Services\BurstSms\Responses;
 
+use Carbon\Carbon;
 use GuzzleHttp\Psr7\Response;
 
-class BurstSmsGuzzleResponse
+class BurstSmsGuzzleResponse implements BurstSmsResponseInterface
 {
     public $guzzleResponse;
+
+    public $body;
 
     public $status;
 
@@ -15,6 +18,12 @@ class BurstSmsGuzzleResponse
     public $sentAt;
 
     public $messageId;
+
+    public $failures;
+
+    public $optouts;
+
+    public $reason;
 
     /**
      * BurstSmsGuzzleResponse constructor.
@@ -33,12 +42,14 @@ class BurstSmsGuzzleResponse
      */
     private function breakDown(Response $guzzleResponse)
     {
-        $body = json_decode($guzzleResponse->getBody());
-
-        $this->status = $body->error->code === 'SUCCESS' ? 200 : 500;
-        $this->message = $body->error->description === 'OK' ? 'Sent!' : $body->error->description;
-        $this->sentAt = $body->send_at;
-        $this->messageId = $body->message_id;
+        $this->body = json_decode($guzzleResponse->getBody());
+        $this->status = $this->body->error->code === 'SUCCESS' ? 200 : 500;
+        $this->message = $this->body->error->description === 'OK' ? 'Sent!' : $this->body->error->description;
+        $this->sentAt = isset($this->body->send_at) ? $this->body->send_at : Carbon::now()->toDateTimeString();
+        $this->messageId = isset($this->body->send_at) ? $this->body->send_at : null;
+        $this->failures = isset($this->body->fails) ? $this->body->fails : [];
+        $this->optouts = isset($this->body->optouts) ? $this->body->optouts : [];
+        $this->reason = isset($this->body->reason) ? $this->body->reason : [];
 
         return $this;
     }

@@ -9,6 +9,16 @@ use Laravel\Telescope\TelescopeApplicationServiceProvider;
 
 class TelescopeServiceProvider extends TelescopeApplicationServiceProvider
 {
+    public function boot()
+    {
+        parent::boot();
+
+        Telescope::auth(function ($request) {
+            return true;
+        });
+    }
+
+
     /**
      * Register any application services.
      *

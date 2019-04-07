@@ -3,36 +3,39 @@
 namespace App\Events;
 
 use App\Models\Message;
-use Illuminate\Broadcasting\Channel;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Broadcasting\PrivateChannel;
-use Illuminate\Broadcasting\PresenceChannel;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
+use App\Services\BurstSms\Responses\BurstSmsResponseInterface;
 
 class MessageDispatchCompleted implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
+    public $shop;
+
     public $channel;
 
     public $message;
 
-    public $shop;
+    public $response;
 
     /**
      * Create a new event instance.
      *
+     * @param $shop
      * @param string $channel
      * @param Message $message
-     * @param $shop
+     * @param $response
      */
-    public function __construct(string $channel, Message $message, $shop)
+    public function __construct($shop, string $channel, Message $message, BurstSmsResponseInterface $response)
     {
+        $this->shop = $shop;
         $this->channel = $channel;
         $this->message = $message;
-        $this->shop = $shop;
+        $this->response = $response;
     }
 
     /**

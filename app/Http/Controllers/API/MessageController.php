@@ -1,51 +1,40 @@
 <?php
+
 namespace App\Http\Controllers\Api;
 
-use Exception;
 use App\Models\Shop;
 use App\Jobs\DispatchMessage;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
+use App\Http\Helpers\CommonApiResponses;
 use App\Http\Requests\MessageDispatchRequest;
 
 class MessageController extends Controller
 {
-    /**
-     * Extractable Shop Properties // TODO: Move into shop model
-     */
-    const SHOP_PROPERTIES = [
-        'name',
-        'email',
-        'domain',
-        'province',
-        'country',
-        'city',
-        'phone',
-        'currency',
-        'address1',
-        'zip'
-    ];
-
     /**
      * @param MessageDispatchRequest $request
      * @return array
      */
     public function send(MessageDispatchRequest $request)
     {
-        $shop = $this->getShop($request->get('shop'));
+        Log::debug('Received Message Dispatch Request');
+        Log::debug($request);
 
-        $subscription = $shop->subscription();
+
+        if($shop = $this->getShop($request->get('shop'))) {
+            CommonApiResponses::missingSubscription($request->get('shop'));
+        }
+
+        if(!$subscription = $shop->subscription()) {
+            CommonApiResponses::missingSubscription($request->get('shop'));
+        }
 
         $credits = $subscription->getRemainingCredits($request->json('shop'));
-
         $recipients = collect($request->json('recipients'));
 
         if(($credits < 1) || $credits < $recipients->count() && !$request->json('enable_partial', false)) {
-            return [
-                'status'  => 405,
-                'message' => "Not enough credits remaining to send {$recipients->count()} messages",
-                'credits_remaining' => $credits
-            ];
+            CommonApiResponses::notEnoughCredits($recipients->count(), $credits);
         }
 
         // Default chunk size is the entire recipients.
@@ -56,49 +45,15 @@ class MessageController extends Controller
             $chunk = $credits;
         }
 
-        try {
-            $channels = $this->cleanChannels($request->json('channels'));
+        $shopProperties = $shop->messageProperties();
 
-            $shopData = $this->getShopData($request->json('shop'));
+        foreach ($recipients->chunk($chunk)->first() as $count => $recipient) {
+            $recipient = collect($recipient)->merge(['shop' => $shopProperties]);
 
-            $count = 0;
-
-            foreach ($recipients->chunk($chunk)->first() as $recipient) {
-                $recipient = collect($recipient)->merge(['shop' => $shopData]);
-
-                // TODO: Check customer accepts marketing and channel is available.
-                foreach ($channels as $channel) {
-                    DispatchMessage::dispatch($channel,
-                        $recipient,
-                        $request->json('message'),
-                        $request->input('shop')
-                    );
-
-                    $count++;
-                }
-            }
-
-            return response()->json([
-                'status' => 200,
-                'message' => 'Messages are sending.',
-                'count'   => $count,
-            ]);
-        } catch (Exception $exception) {
-            return response()->json([
-                'stats' => 500,
-                'message' => $exception->getMessage() .' in '.  $exception->getFile() .' line '. $exception->getLine(),
-                'status' => $exception->getCode()
-            ]);
+            DispatchMessage::dispatch('sms', $recipient, $request->json('message'), $request->input('shop'));
         }
-    }
 
-    /**
-     * @param $shop
-     * @return Collection
-     */
-    private function getShopData($shop) : Collection
-    {
-        return collect($this->getShop($shop)->shopDetails())->only(self::SHOP_PROPERTIES);
+        return response()->json(['status' => 201, 'message' => 'Messages are queued.', 'count' => ++$count]);
     }
 
     /**
@@ -125,7 +80,6 @@ class MessageController extends Controller
     private function cleanChannels($channels)
     {
         $availableChannels = $this->availableChannels();
-
         return array_filter($channels, function($channels) use ($availableChannels) {
             return in_array($channels, $availableChannels);
         });

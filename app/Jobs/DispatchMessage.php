@@ -6,10 +6,13 @@ use App\Models\Message;
 use Illuminate\Bus\Queueable;
 use App\Services\BurstSms\Client;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Log;
+use App\Events\MessageDispatchStarted;
 use Illuminate\Queue\InteractsWithQueue;
 use App\Events\MessageDispatchCompleted;
-use Illuminate\Contracts\Queue\ShouldQueue;
+use GuzzleHttp\Exception\ClientException;
 use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use App\Services\BurstSms\Responses\BurstSmsGuzzleResponse;
 use App\Services\BurstSms\Responses\FakeBurstSmsGuzzleResponse;
 
@@ -64,39 +67,46 @@ class DispatchMessage implements ShouldQueue
      */
     public function handle(Client $client)
     {
+        Log::debug('Starting DispatchMessage JOB');
+
+        $this->dispatchStartedEvent(
+            "Dispatching message to {$this->recipient->get('first_name')} {$this->recipient->get('last_name')} 
+            ({$this->recipient->get('phone')})");
+
         $message = (new Message($this->recipient, $this->message));
 
-        $response = new BurstSmsGuzzleResponse($client->request('POST', 'send-sms.json', [
-            'form_params' => $message->__toArray($this->channel)
-        ]));
+        try {
+            $response = new BurstSmsGuzzleResponse($client->request('POST', 'send-sms.json', [
+                'form_params' => $message->__toArray($this->channel)
+            ]));
+        } catch(ClientException $exception) {
+            $response = new BurstSmsGuzzleResponse($exception->getResponse());
+            Log::debug(json_encode($response->message));
+        }
 
         // Cheap mode!
-       // $response = new FakeBurstSmsGuzzleResponse();
+      //  $response = new FakeBurstSmsGuzzleResponse();
+     //   $response = new FakeBurstSmsGuzzleResponse(500, 'The customer has opted out!');
 
-        $this->dispatchEvent($message, $response);
+        Log::debug('Response');
 
-        /**
-         * To provide the best service to all our customers we limit the number of ApiService calls
-         * which can be made by each account to 2 calls per sec. For heavy users we can increase
-         * your throttling speed, but please contact us to discuss your requirements. If you
-         * exceed this limit we will return two indicators which you can use in your code
-         * to detect that you have been throttled.
-         * The first is the HTTP status code 429 "Too Many Requests", the second is the error
-         * code "OVER_LIMIT" in the error block of the response body.
-         */
-        sleep(0.1);
+        $this->dispatchCompletedEvent($message, $response);
+    }
+
+    /**
+     * @param $notice
+     */
+    private function dispatchStartedEvent($notice) : void
+    {
+        MessageDispatchStarted::dispatch($this->shop, $this->channel, $notice);
     }
 
     /**
      * @param $message
      * @param $response
      */
-    private function dispatchEvent($message, $response) : void
+    private function dispatchCompletedEvent($message, $response) : void
     {
-        $message->status = $response->status;
-        $message->responseMessage = $response->message;
-        $message->sendCount = 1;
-
-        MessageDispatchCompleted::dispatch($this->channel, $message, $this->shop);
+        MessageDispatchCompleted::dispatch($this->shop, $this->channel, $message, $response);
     }
 }

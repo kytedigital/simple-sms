@@ -2,9 +2,8 @@
 
 namespace App\Providers;
 
-use App\MessageLog;
-use Illuminate\Support\Facades\Event;
 use App\Events\MessageDispatchCompleted;
+use App\Listeners\MessageDispatchCompletedEventListener;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 
 class EventServiceProvider extends ServiceProvider
@@ -15,8 +14,8 @@ class EventServiceProvider extends ServiceProvider
      * @var array
      */
     protected $listen = [
-        'App\Events\Event' => [
-            'App\Listeners\EventListener',
+        MessageDispatchCompleted::class => [
+            MessageDispatchCompletedEventListener::class,
         ],
     ];
 
@@ -28,14 +27,5 @@ class EventServiceProvider extends ServiceProvider
     public function boot()
     {
         parent::boot();
-
-        Event::listen(MessageDispatchCompleted::class, function ($event) {
-            $message = (array) $event->message;
-            $message['channel'] = $event->channel;
-            $message['recipients'] = $message['recipient']['phone'];
-            $message['shop'] = $event->shop;
-
-            (new MessageLog($message))->save();
-        });
     }
 }

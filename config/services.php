@@ -55,7 +55,8 @@ return [
     ],
 
     'messaging' => [
-        'channels' => explode(',', env('MESSAGING_CHANNELS'))
+        'channels' => explode(',', env('MESSAGING_CHANNELS')),
+        'api_base' => env('API_BASE')
     ]
 
 ];

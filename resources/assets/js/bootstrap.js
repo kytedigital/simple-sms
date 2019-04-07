@@ -48,7 +48,6 @@ import Echo from 'laravel-echo'
 
 window.Pusher = require('pusher-js');
 
-let shop = document.head.querySelector('meta[name="shop"]');
 let apiToken = document.head.querySelector('meta[name="api-token"]');
 
 window.Echo = new Echo({

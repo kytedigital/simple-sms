@@ -1,0 +1,81 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: api
+  template:
+    metadata:
+      labels:
+        app: api
+    spec:
+      containers:
+        - name: api
+          image: gcr.io/shopify-sms/shopify-sms:0.8.1
+          imagePullPolicy: Always
+          envFrom:
+            - configMapRef:
+                name: api
+          ports:
+            - containerPort: 3000
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 3000
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 3000
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: worker
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: worker
+  template:
+    metadata:
+      labels:
+        app: worker
+    spec:
+      containers:
+        - name: worker
+          image: gcr.io/shopify-sms/shopify-sms:0.8.1
+          imagePullPolicy: Always
+          envFrom:
+            - configMapRef:
+                name: api
+          ports:
+            - containerPort: 3000
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 3000
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 3000
+---
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: scheduler
+spec:
+  schedule: "*/1 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+            - name: scheduler
+              image: gcr.io/shopify-sms/shopify-sms:0.8.1
+              command: ["php", "artisan", "schedule:run"]
+              imagePullPolicy: Always
+          restartPolicy: OnFailure

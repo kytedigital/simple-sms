@@ -18,7 +18,8 @@ class Kernel extends HttpKernel
         \Illuminate\Foundation\Http\Middleware\ValidatePostSize::class,
         \App\Http\Middleware\TrimStrings::class,
         \Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull::class,
-        \App\Http\Middleware\TrustProxies::class
+        \App\Http\Middleware\TrustProxies::class,
+        \Barryvdh\Cors\HandleCors::class
     ];
 
     /**
@@ -33,12 +34,15 @@ class Kernel extends HttpKernel
             \Illuminate\Session\Middleware\StartSession::class,
             \Illuminate\View\Middleware\ShareErrorsFromSession::class,
             \App\Http\Middleware\VerifyCsrfToken::class,
+            \App\Http\Middleware\NoCache::class,
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
         ],
 
         'api' => [
             \App\Http\Middleware\EnsureJson::class,
-            \App\Http\Middleware\HandleCors::class,
+            \App\Http\Middleware\NoCache::class,
+     //       \App\Http\Middleware\HandleCors::class,
+            \Barryvdh\Cors\HandleCors::class,
             'throttle:60,1',
             'bindings',
         ],

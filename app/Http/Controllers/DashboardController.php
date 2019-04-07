@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Events\MessageDispatchCompleted;
 use Carbon\Carbon;
 use App\Models\Shop;
 use App\Models\Token;
@@ -10,6 +9,7 @@ use App\Traits\UsesNames;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Support\Facades\Artisan;
 
 class DashboardController extends Controller
 {
@@ -38,10 +38,11 @@ class DashboardController extends Controller
      * @param Request $request
      * @param Shop $shop
      * @return \Illuminate\Contracts\View\Factory|RedirectResponse|\Illuminate\View\View
+     * @throws \Exception
      */
     public function index(Request $request, Shop $shop)
     {
-        if($this->looksLikeInstall($request)) $this->startInstall($request);
+        if($this->looksLikeInstall($request)) return $this->startInstall($request);
 
         try {
             $shop = $shop->where(['name' => $this->shopName()])->firstOrFail();
@@ -79,6 +80,7 @@ class DashboardController extends Controller
      * Generate and save a random for verifying requests.
      *
      * @return string
+     * @throws \Exception
      */
     private function generateApiToken()
     {
@@ -90,7 +92,7 @@ class DashboardController extends Controller
             'type' => 'app-api',
             'token' => $code,
             'shop' => $this->shopName(),
-            'expires_at' => (new Carbon('+2 hours'))->toDateTimeString()
+            'expires_at' => (new Carbon('+5 hours'))->toDateTimeString()
         ]));
 
         $token->save();

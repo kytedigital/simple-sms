@@ -1,88 +1,74 @@
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: api
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      name: api
-  template:
-    metadata:
-      labels:
-        name: api
-        config: "1"
-    spec:
-      containers:
-        - name: api
-          image: gcr.io/shopify-sms/shopify-sms:0.8
-          imagePullPolicy: IfNotPresent
-          envFrom:
-            - configMapRef:
-                name: api
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: worker
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      name: worker
-  template:
-    metadata:
-      labels:
-        name: worker
-        config: "1"
-    spec:
-      containers:
-        - name: worker
-          image: gcr.io/shopify-sms/shopify-sms-worker:0.8
-          imagePullPolicy: IfNotPresent
-          envFrom:
-            - configMapRef:
-                name: api
----
-apiVersion: batch/v1beta1
-kind: CronJob
-metadata:
-  name: scheduler
-spec:
-  schedule: "*/1 * * * *"
-  jobTemplate:
-    spec:
-      template:
-        spec:
-          containers:
-            - name: scheduler
-              image: gcr.io/shopify-sms/shopify-sms:0.8
-              command: ["php", "artisan", "schedule:run"]
-          restartPolicy: OnFailure
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: api-web
-spec:
-  type: NodePort
-  selector:
-    name: api
-  ports:
-    - name: http
-      protocol: TCP
-      port: 80
-      targetPort: 80
----
-apiVersion: extensions/v1beta1
-kind: Ingress
-metadata:
-  name: api-edge
-  annotations:
-    kubernetes.io/ingress.global-static-ip-name: "shopify-sms"
-spec:
-  tls:
-    - secretName: shopify-sms.apps
-  backend:
-    serviceName: api-web
-    servicePort: 80
+runtime: php
+env: flex
+
+manual_scaling:
+  instances: 1
+resources:
+  cpu: 2
+  memory_gb: 2
+  disk_size_gb: 12
+
+runtime_config:
+  document_root: "./public"
+
+readiness_check:
+  path: "/health"
+  check_interval_sec: 30
+  timeout_sec: 30
+  failure_threshold: 5
+  success_threshold: 5
+  app_start_timeout_sec: 300
+
+liveness_check:
+  path: "/health"
+  check_interval_sec: 30
+  timeout_sec: 30
+  failure_threshold: 5
+  success_threshold: 5
+
+env_variables:
+  APP_NAME: "shopify-sms-1"
+  APP_DEBUG: true
+  APP_KEY: "base64:q0fxs6z6ngsUSOXA19yPedtTRkpTchoQ3k4vshmF0vI="
+  APP_URL: "https://shopify-sms.apps.kyte.digital"
+
+  BROADCAST_DRIVER: "pusher"
+  QUEUE_DRIVER: "database"
+  CACHE_DRIVER: "file"
+  SESSION_DRIVER: "database"
+  DB_HOST: localhost
+  DB_CONNECTION: mysql
+  DB_DATABASE: "shopify_sms"
+  DB_USERNAME: "shopify_sms"
+  DB_PASSWORD: "@1withPenguins"
+  DB_SOCKET: "/cloudsql/shopify-sms:australia-southeast1:shopify-sms"
+  MYSQL_DSN: "mysql:dbname=shopify_sms;unix_socket=/cloudsql/shopify-sms:australia-southeast1:shopify-sms"
+
+  BURST_SMS_API_KEY: "230e4ea0fd45e3cba4c93d5bf3d9c296"
+  BURST_SMS_API_SECRET: "apisecretkey"
+  BURST_SMS_API_BASE: "https://api.transmitsms.com/"
+  BURST_SMS_FIXED_NUMBER: "61428974807"
+
+  MESSAGING_CHANNELS: "sms"
+
+  APP_TIMEZONE: "Australia/Sydney"
+
+  GOOGLE_CLOUD_PROJECT: "shopify-sms"
+
+  PUSHER_APP_ID: "720991"
+  PUSHER_APP_KEY: "a8b8e4a570934dd3bc44"
+  PUSHER_APP_SECRET: "f25b954f4ec5b822dff6"
+  PUSHER_APP_CLUSTER: "ap1"
+  MIX_PUSHER_APP_CLUSTER: "ap1"
+
+  API_BASE: "https://shopify-sms.apps.kyte.digital/api/"
+  APP_API_KEY: "a0bfbdd4b0e5569b401b88c16f225172"
+  APP_API_SECRET: "c56a52d12898ea4e50fc254b407a0e28"
+
+  TELESCOPE_ENABLED: true
+
+  WHITELIST_FUNCTIONS: proc_open,proc_close,proc_get_status,proc_terminate
+beta_settings:
+  # for Cloud SQL, set this value to the Cloud SQL connection name,
+  # e.g. "project:region:cloudsql-instance"
+  cloud_sql_instances: "shopify-sms:australia-southeast1:shopify-sms"

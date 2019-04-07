@@ -5,8 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Plan;
 use App\Models\Shop;
 use App\Traits\UsesNames;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use App\Http\Helpers\Shopify;
 use GuzzleHttp\Client as Guzzle;
 use App\Services\Shopify\Client;
 use Illuminate\Support\Facades\Log;
@@ -26,6 +26,9 @@ class SubscriptionController extends Controller
      */
     private $clientSecret;
 
+    /**
+     * @var
+     */
     private $shop;
 
     /**
@@ -74,28 +77,30 @@ class SubscriptionController extends Controller
 
     /**
      * @param Request $request
+     * @param Client $client
      * @return void
      */
     public function createSubscription(Request $request, Client $client)
     {
         $shop = Shop::where('name', $this->shopName())->first();
 
-        $this->client = $client->oauth($shop->getAttribute('token'))
-                                ->setStore($this->shopName(true))->getClient();
+        $this->client = $client->oauth($shop->getAttribute('token'))->setStore($this->shopName(true))->getClient();
 
         try {
-
             $result = $this->client->post("/admin/recurring_application_charges.json", [
                 'form_params' => [
                     'recurring_application_charge' => $this->subscriptionDetails($request->input('code'))
                 ]
             ]);
-
-        } catch( GuzzleException $e ) {
-
+        } catch(GuzzleException $e) {
             Log::debug($e->getMessage());
-            return response()->json(['message' => $e->getMessage()], 500);
 
+            // The token is now invalid. Reinstall.
+            if($e->getCode()) {
+                return $this->startInstall($request);
+            }
+
+            return response()->json(['message' => $e->getMessage()], 500);
         }
 
         $charge = json_decode($result->getBody())->recurring_application_charge;
@@ -105,6 +110,23 @@ class SubscriptionController extends Controller
         return "<script>window.top.location.href = \"{$charge->confirmation_url}\";</script>";
 
 //        return redirect($charge->confirmation_url);
+    }
+
+    /**
+     * Start the oAuth installation process.
+     *
+     * @param Request $request
+     * @return RedirectResponse
+     */
+    public function startInstall(Request $request)
+    {
+        $redirectUrl = config('app.url') .'/token';
+
+        $request->session()->put('nounce', md5($this->shopName() . time()));
+
+        return response()->redirectTo(
+            "https://{$this->shopName()}.myshopify.com/admin/oauth/authorize?client_id={$this->clientId}&scope=read_customers&redirect_uri=$redirectUrl&state=".session('nounce')
+        );
     }
 
     /**

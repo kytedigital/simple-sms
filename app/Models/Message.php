@@ -14,8 +14,6 @@ class Message
 
     public $responseMessage;
 
-    public $sendCount;
-
     /**
      * Message constructor.
      * @param Collection $recipient
@@ -35,10 +33,10 @@ class Message
         $message = $this->message;
 
         foreach($this->recipient->get('shop') as $attribute => $value) {
-            $message = str_replace('{shop.' . $attribute . '}', $value, $message);
+            $message = str_replace('{shop.'.$attribute.'}', $value, $message);
         }
 
-        // TODO this is inefficient, reverse the logic.
+        // TODO this is inefficient, reverse the logic or implement handle bars.
         foreach($this->recipient as $attribute => $value) {
             if(is_object($value) || is_array($value)) continue;
             $message = str_replace('{' . $attribute . '}', $value, $message);

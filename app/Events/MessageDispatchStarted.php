@@ -2,26 +2,33 @@
 
 namespace App\Events;
 
-use Illuminate\Broadcasting\Channel;
-use Illuminate\Queue\SerializesModels;
 use Illuminate\Broadcasting\PrivateChannel;
-use Illuminate\Broadcasting\PresenceChannel;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 
-class Event
+class MessageDispatchStarted implements ShouldBroadcast
 {
-    use Dispatchable, InteractsWithSockets, SerializesModels;
+    use Dispatchable, InteractsWithSockets;
+
+    public $shop;
+
+    public $channel;
+
+    public $notice;
 
     /**
      * Create a new event instance.
      *
-     * @return void
+     * @param $shop
+     * @param string $channel
+     * @param $notice
      */
-    public function __construct()
+    public function __construct($shop, string $channel, $notice)
     {
-        //
+        $this->shop = $shop;
+        $this->channel = $channel;
+        $this->notice = $notice;
     }
 
     /**
@@ -31,6 +38,6 @@ class Event
      */
     public function broadcastOn()
     {
-        return new PrivateChannel('channel-name');
+        return new PrivateChannel("shop.{$this->shop}");
     }
 }

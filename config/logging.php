@@ -33,9 +33,16 @@ return [
     */
 
     'channels' => [
+
         'stack' => [
             'driver' => 'stack',
-            'channels' => ['single'],
+            'channels' => ['single', 'stackdriver'],
+        ],
+
+        'stackdriver' => [
+            'driver' => 'custom',
+            'via' => App\Logging\CreateStackdriverLogger::class,
+            'level' => 'debug',
         ],
 
         'single' => [

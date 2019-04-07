@@ -45,7 +45,8 @@
             SendifyLoader.bind({
                 'shop': '{{ $shop }}',
                 'token': '{{ $token }}',
-                'signature': '{{ csrf_token() }}'
+                'signature': '{{ csrf_token() }}',
+                'apiBase': '{{ config('services.messaging.api_base') }}'
             }, 'app');
         }
     </script>

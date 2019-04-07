@@ -1,0 +1,17 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: api-edge
+spec:
+  tls:
+  - hosts:
+    - shopify-sms.apps.kyte.digital
+    secretName: shopify-sms.apps
+  rules:
+    - host: shopify-sms.apps.kyte.digital
+      http:
+        paths:
+          - path: /
+            backend:
+              serviceName: api-web
+              servicePort: 80

@@ -12,26 +12,23 @@ export default class SendifySdk {
             'recipients': recipients
         };
 
-        console.log(recipients.values());
-        console.log(data);
-
         return this.call('dispatch', function(response) {
             return callback(response.data);
         }, 'POST', data);
     }
 
     static getCustomers(callback) {
-        return this.call('customers', function(response) {
-            console.log(response.data.items);
+        return this.call('customers?limit=250', function(response) {
+            console.log('Customers Response', response.data.items);
             return callback(response.data.items);
         });
     }
 
     static call(url, callback, method = 'GET', data = {}) {
+
         const options = {
-           // base: 'https://emperor.appspot.com/api/',
-            base: 'https://shopify-sms.test/api/',
-            token: '9f852eb6ce5fdd8ecd2c31402ac1fea1b4769db783fe287c8a0117d35fa8325d',
+            base: window.Sendify.apiBase,
+            token: window.Sendify.token,
             method: method,
             url: url,
             data: data

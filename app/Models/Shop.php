@@ -5,11 +5,27 @@ namespace App\Models;
 use Carbon\Carbon;
 use App\Http\Helpers\Shopify;
 use App\Services\Shopify\Client;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Database\Eloquent\Model;
 
 class Shop extends Model
 {
+    /**
+     * Extractable Shop Properties // TODO: Move into shop model
+     */
+    const MESSAGE_PROPERTIES = [
+        'name',
+        'email',
+        'domain',
+        'province',
+        'country',
+        'city',
+        'phone',
+        'currency',
+        'address1',
+        'zip'
+    ];
+
     private $client;
 
     protected $fillable = ['name', 'token'];
@@ -29,7 +45,7 @@ class Shop extends Model
      */
     public function subscription()
     {
-        $charges = $this->charges();
+        if(!$charges = $this->charges()) return null;
 
         $activeCharges = $charges->where('status', 'active');
 
@@ -92,5 +108,13 @@ class Shop extends Model
         return $this->client = $client = (new Client)->oauth($this->getAttribute('token'))
                                         ->setStore(Shopify::nameToUrl($this->getAttribute('name')))
                                         ->getClient();
+    }
+
+    /**
+     * @return \Illuminate\Support\Collection
+     */
+    public function messageProperties()
+    {
+        return collect($this->shopDetails())->only(self::MESSAGE_PROPERTIES);
     }
 }

@@ -15,16 +15,13 @@ export class SendifyLoader {
      */
     static bind (options, elementId) {
         document.addEventListener("DOMContentLoaded", () => {
-
-            console.log('Sendify Loader Version ' + SendifyLoader.version());
-
             window.Sendify = {
                 "token": options.token,
-                "shop": options.shop
+                "shop": options.shop,
+                "apiBase": options.apiBase
             };
-
             if (document.getElementById(elementId)) {
-                ReactDOM.render(<Dashboard />, document.getElementById(elementId));
+                ReactDOM.render(<Dashboard shop={options.shop} token={options.token} apiBase={options.apiBase} />, document.getElementById(elementId));
             }
         });
     }

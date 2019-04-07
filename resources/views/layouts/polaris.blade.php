@@ -4,8 +4,8 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <meta name="shop" content="{{ $shop }}">
-    <meta name="api-token" content="{{ $token }}">
+    @if(isset($shop))<meta name="shop" content="{{ $shop }}">@endif
+    @if(isset($shop))<meta name="api-token" content="{{ $token }}">@endif
 
     <title>Emperor - @yield('title')</title>
 

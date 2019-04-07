@@ -1,14 +1,14 @@
 version: '3'
 services:
   app:
-    build: .
+    build: ..
     ports:
       - 8080:80
     volumes:
       - .:/var/www/html
   worker:
     build:
-      context: .
+      context: ..
       dockerfile: Dockerfile.worker
     volumes:
       - .:/var/www/html

@@ -25,3 +25,8 @@ Route::get('health', function () { return response()->json(['status' => 200]); }
 Route::get('contact',  'ContactController@index')->name('contact');
 Route::get('refresh',  'SecurityController@refresh')->name('refresh');
 Route::get('security', 'SecurityController@security')->name('security');
+
+
+Route::get('scheduler', function () {
+    \Illuminate\Support\Facades\Artisan::call('schedule:run');
+});
