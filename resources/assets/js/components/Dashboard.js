@@ -7,6 +7,7 @@ import BannerNotice from "./BannerNotice";
 import CustomerList from "./CustomerList";
 import LoadingPage from './LoadingPage';
 import Message from "./Message";
+import ProcessingList from "./ProcessingList";
 
 export default class Dashboard extends Component {
     constructor(props) {
@@ -187,6 +188,8 @@ export default class Dashboard extends Component {
                         <Layout.Section secondary >
                             <CustomerList
                                 onChange={this.changeCustomers.bind(this)}
+                                selectAllCustomers={this.selectAllCustomers.bind(this)}
+                                unSelectAllCustomers={this.unSelectAllCustomers.bind(this)}
                                 selected={this.state.selectedRecipientIds}
                                 customers={this.acceptableCustomers()}
                                 resultsPerPage={10}
@@ -214,14 +217,14 @@ export default class Dashboard extends Component {
                                 notice={this.state.notice}
                                 onDismiss={this.clearNotices.bind(this)}
                             />
-                            <Card primaryFooterAction={{content: 'Send', onAction: () => this.sendMessage()}}
-                            >
+                            <Card primaryFooterAction={{content: 'Send', onAction: () => this.sendMessage()}}>
                                 <Message message={this.state.message}
                                          onChange={this.changeMessage.bind(this)}
                                          error={this.getFieldErrors("message")}
                                 />
                                 <AvailablePlaceholders />
-                                <RecipientsList recipients={this.selectedRecipientsWithStatuses()} />
+                                <ProcessingList channel={this.channel} recipients={this.selectedRecipientsWithStatuses()} />
+                                {/*<RecipientsList recipients={this.selectedRecipientsWithStatuses()} />*/}
                             </Card>
                             {(this.state.showTestingBanner) &&
                                 <div>

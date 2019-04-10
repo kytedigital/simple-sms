@@ -2,6 +2,7 @@
 
 namespace App\Events;
 
+use App\Models\Message;
 use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Broadcasting\InteractsWithSockets;
@@ -17,18 +18,20 @@ class MessageDispatchStarted implements ShouldBroadcast
 
     public $notice;
 
+    public $message;
+
     /**
      * Create a new event instance.
      *
      * @param $shop
      * @param string $channel
-     * @param $notice
+     * @param Message $message
      */
-    public function __construct($shop, string $channel, $notice)
+    public function __construct($shop, string $channel, Message $message)
     {
         $this->shop = $shop;
         $this->channel = $channel;
-        $this->notice = $notice;
+        $this->message = $message;
     }
 
     /**

@@ -69,11 +69,9 @@ class DispatchMessage implements ShouldQueue
     {
         Log::debug('Starting DispatchMessage JOB');
 
-        $this->dispatchStartedEvent(
-            "Dispatching message to {$this->recipient->get('first_name')} {$this->recipient->get('last_name')} 
-            ({$this->recipient->get('phone')})");
-
         $message = (new Message($this->recipient, $this->message));
+
+        $this->dispatchStartedEvent($message);
 
         try {
             $response = new BurstSmsGuzzleResponse($client->request('POST', 'send-sms.json', [
@@ -94,11 +92,11 @@ class DispatchMessage implements ShouldQueue
     }
 
     /**
-     * @param $notice
+     * @param $message
      */
-    private function dispatchStartedEvent($notice) : void
+    private function dispatchStartedEvent($message) : void
     {
-        MessageDispatchStarted::dispatch($this->shop, $this->channel, $notice);
+        MessageDispatchStarted::dispatch($this->shop, $this->channel, $message);
     }
 
     /**
