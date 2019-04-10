@@ -62,6 +62,7 @@ export default class ProcessingList extends Component {
     }
 
     render() {
+
         console.log('PROCESSES', this.state.processes);
         console.log('EXTRACT', this.extractProcessingRecipientsFromStatusList());
         return <div>
@@ -81,6 +82,7 @@ export default class ProcessingList extends Component {
                                 url={`/admin/customers/` + id}
                                 media={media}
                                 accessibilityLabel={`View details for ${first_name} ${last_name}`}
+                                style={{transition: "0.5s", animation: "fadeOut 500ms"}}
                             >
                                 <h3>
                                     <TextStyle variation="strong">{first_name} {last_name}</TextStyle>

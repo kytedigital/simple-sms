@@ -20570,9 +20570,19 @@ var Dashboard = function (_Component) {
             this.setState({ "message": value });this.clearFieldError("message");
         }
     }, {
+        key: 'getFooterAction',
+        value: function getFooterAction() {
+            var _this7 = this;
+
+            console.log('w=stats', this.state.status);
+            return this.state.status ? null : { content: 'Send', onAction: function onAction() {
+                    return _this7.sendMessage();
+                } };
+        }
+    }, {
         key: 'render',
         value: function render() {
-            var _this7 = this;
+            var _this8 = this;
 
             if (!this.state.customers) {
                 return __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(__WEBPACK_IMPORTED_MODULE_7__LoadingPage__["a" /* default */], null);
@@ -20596,7 +20606,8 @@ var Dashboard = function (_Component) {
                                 unSelectAllCustomers: this.unSelectAllCustomers.bind(this),
                                 selected: this.state.selectedRecipientIds,
                                 customers: this.acceptableCustomers(),
-                                resultsPerPage: 10
+                                resultsPerPage: 10,
+                                disabled: this.state.status
                             }),
                             this.state.showMissingPeopleBanner && __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
                                 'div',
@@ -20608,10 +20619,10 @@ var Dashboard = function (_Component) {
                                         title: 'Someone missing?',
                                         status: 'informational',
                                         action: { content: 'Ok, got it!', onAction: function onAction() {
-                                                return _this7.setState({ 'showMissingPeopleBanner': false });
+                                                return _this8.setState({ 'showMissingPeopleBanner': false });
                                             } },
                                         onDismiss: function onDismiss() {
-                                            return _this7.setState({ 'showMissingPeopleBanner': false });
+                                            return _this8.setState({ 'showMissingPeopleBanner': false });
                                         }
                                     },
                                     __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
@@ -20636,12 +20647,11 @@ var Dashboard = function (_Component) {
                             }),
                             __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
                                 __WEBPACK_IMPORTED_MODULE_1__shopify_polaris__["e" /* Card */],
-                                { primaryFooterAction: { content: 'Send', onAction: function onAction() {
-                                            return _this7.sendMessage();
-                                        } } },
+                                { primaryFooterAction: this.getFooterAction() },
                                 __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(__WEBPACK_IMPORTED_MODULE_8__Message__["a" /* default */], { message: this.state.message,
                                     onChange: this.changeMessage.bind(this),
-                                    error: this.getFieldErrors("message")
+                                    error: this.getFieldErrors("message"),
+                                    disabled: this.state.status
                                 }),
                                 __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(__WEBPACK_IMPORTED_MODULE_3__AvailablePlaceholders__["a" /* default */], null),
                                 __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(__WEBPACK_IMPORTED_MODULE_9__ProcessingList__["a" /* default */], { channel: this.channel, recipients: this.selectedRecipientsWithStatuses() })
@@ -20659,7 +20669,7 @@ var Dashboard = function (_Component) {
                                                 return console.log('/admin/customers/new');
                                             } },
                                         onDismiss: function onDismiss() {
-                                            return _this7.setState({ 'showTestingBanner': false });
+                                            return _this8.setState({ 'showTestingBanner': false });
                                         }
                                     },
                                     __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
@@ -68069,7 +68079,8 @@ var CustomerList = function (_React$Component) {
                         loading: !this.state.count,
                         hasMoreItems: true,
                         showHeader: true,
-                        filterControl: filterControl
+                        filterControl: filterControl,
+                        disabled: this.props.disabled
                     })
                 ),
                 __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
@@ -68259,18 +68270,19 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 
 
-var TestNumber = function (_Component) {
-    _inherits(TestNumber, _Component);
+var Message = function (_Component) {
+    _inherits(Message, _Component);
 
-    function TestNumber() {
-        _classCallCheck(this, TestNumber);
+    function Message() {
+        _classCallCheck(this, Message);
 
-        return _possibleConstructorReturn(this, (TestNumber.__proto__ || Object.getPrototypeOf(TestNumber)).apply(this, arguments));
+        return _possibleConstructorReturn(this, (Message.__proto__ || Object.getPrototypeOf(Message)).apply(this, arguments));
     }
 
-    _createClass(TestNumber, [{
+    _createClass(Message, [{
         key: 'render',
         value: function render() {
+            console.log('Message Disabled', this.props.disabled);
             return __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
                 __WEBPACK_IMPORTED_MODULE_1__shopify_polaris__["e" /* Card */].Section,
                 null,
@@ -68281,16 +68293,17 @@ var TestNumber = function (_Component) {
                     value: this.props.message,
                     onChange: this.props.onChange,
                     error: this.props.error,
-                    readOnly: false
+                    readOnly: this.props.disabled,
+                    disabled: this.props.disabled
                 })
             );
         }
     }]);
 
-    return TestNumber;
+    return Message;
 }(__WEBPACK_IMPORTED_MODULE_0_react__["Component"]);
 
-/* harmony default export */ __webpack_exports__["a"] = (TestNumber);
+/* harmony default export */ __webpack_exports__["a"] = (Message);
 
 /***/ }),
 /* 540 */
@@ -68463,6 +68476,7 @@ var ProcessingList = function (_Component) {
     }, {
         key: 'render',
         value: function render() {
+
             console.log('PROCESSES', this.state.processes);
             console.log('EXTRACT', this.extractProcessingRecipientsFromStatusList());
             return __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
@@ -68499,7 +68513,8 @@ var ProcessingList = function (_Component) {
                                     id: id,
                                     url: '/admin/customers/' + id,
                                     media: media,
-                                    accessibilityLabel: 'View details for ' + first_name + ' ' + last_name
+                                    accessibilityLabel: 'View details for ' + first_name + ' ' + last_name,
+                                    style: { transition: "0.5s", animation: "fadeOut 500ms" }
                                 },
                                 __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
                                     'h3',

@@ -151,6 +151,7 @@ export default class CustomerList extends React.Component {
                         hasMoreItems={true}
                         showHeader={true}
                         filterControl={filterControl}
+                        disabled={this.props.disabled}
                     />
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'center', margin: '20px' }}>

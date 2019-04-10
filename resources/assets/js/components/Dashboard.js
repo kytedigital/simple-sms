@@ -179,6 +179,11 @@ export default class Dashboard extends Component {
         this.setState({"message": value}); this.clearFieldError("message");
     }
 
+    getFooterAction() {
+        console.log('w=stats', this.state.status )
+        return this.state.status ? null : {content: 'Send', onAction: () => this.sendMessage()};
+    }
+
     render() {
         if (!this.state.customers) { return <LoadingPage /> }
 
@@ -193,6 +198,7 @@ export default class Dashboard extends Component {
                                 selected={this.state.selectedRecipientIds}
                                 customers={this.acceptableCustomers()}
                                 resultsPerPage={10}
+                                disabled={this.state.status}
                             />
                             {(this.state.showMissingPeopleBanner) &&
                                 <div>
@@ -217,10 +223,11 @@ export default class Dashboard extends Component {
                                 notice={this.state.notice}
                                 onDismiss={this.clearNotices.bind(this)}
                             />
-                            <Card primaryFooterAction={{content: 'Send', onAction: () => this.sendMessage()}}>
+                            <Card primaryFooterAction={this.getFooterAction()}>
                                 <Message message={this.state.message}
                                          onChange={this.changeMessage.bind(this)}
                                          error={this.getFieldErrors("message")}
+                                         disabled={this.state.status}
                                 />
                                 <AvailablePlaceholders />
                                 <ProcessingList channel={this.channel} recipients={this.selectedRecipientsWithStatuses()} />

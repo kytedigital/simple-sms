@@ -1,8 +1,9 @@
 import React, { Component } from 'react';
 import {Card, TextField} from '@shopify/polaris';
 
-export default class TestNumber extends Component {
+export default class Message extends Component {
     render() {
+        console.log('Message Disabled', this.props.disabled)
         return <Card.Section>
                 <TextField name={'message'}
                            label={"Your message to customers:"}
@@ -13,8 +14,9 @@ export default class TestNumber extends Component {
                            value={this.props.message}
                            onChange={this.props.onChange}
                            error={this.props.error}
-                           readOnly={false}
-                />
+                           readOnly={this.props.disabled}
+                           disabled={this.props.disabled}
+            />
             </Card.Section>
     }
 }
