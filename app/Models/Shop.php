@@ -28,7 +28,7 @@ class Shop extends Model
 
     private $client;
 
-    protected $fillable = ['name', 'token'];
+    protected $fillable = ['name', 'token', 'burst_sms_list_id'];
 
     /**
      * Get the stores subscription.

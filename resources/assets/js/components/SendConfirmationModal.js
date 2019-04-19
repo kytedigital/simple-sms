@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import {Modal} from '@shopify/polaris';
+import {Modal, TextContainer } from '@shopify/polaris';
 
 export default class ResetOptionsModal extends React.Component {
     constructor(props) {
@@ -17,21 +17,25 @@ export default class ResetOptionsModal extends React.Component {
                 <Modal
                     open={active}
                     onClose={this.handleClose}
-                    title="Send another message?"
+                    title="Send Message?"
                     primaryAction={{
-                        content: 'Start again',
-                        onAction: this.props.onReset,
+                        content: 'Continue',
+                        onAction: this.props.onSend,
                     }}
                     secondaryActions={[
                         {
                             content: 'Cancel',
-                            onAction: this.handleClose,
+                            onAction: this.props.onClose,
                         },
                     ]}
                 >
                     <Modal.Section>
-                        <p>Would you like to reset everything and send a new message?
-                            Your current message will keep on sending in the background.</p>
+                        <TextContainer spacing="loose">
+                            <p>You are about to send:.</p>
+
+                            <p>{this.props.message}</p>
+                            <p>To {this.props.recipientsCount} recipients.</p>
+                        </TextContainer>
                     </Modal.Section>
                 </Modal>
         );

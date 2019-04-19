@@ -4,10 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Models\Shop;
 use App\Http\Helpers\Shopify;
+use App\Services\BurstSms\Responses\BurstSmsGuzzleResponse;
 use GuzzleHttp\Client as Guzzle;
+use GuzzleHttp\Exception\ClientException;
 use Illuminate\Support\Facades\Log;
 use GuzzleHttp\Exception\GuzzleException;
 use App\Http\Requests\ReceiveAccessCodeRequest;
+use App\Services\BurstSms\Client as BurstClient;
 
 class InstallationController extends Controller
 {
@@ -58,6 +61,8 @@ class InstallationController extends Controller
 
         $this->saveStoreToken(Shopify::stemName($request->input('shop')), $response->access_token);
 
+        $this->setupSmsContactListID(Shopify::stemName($request->input('shop')));
+
         return response()->redirectTo('https://'.$request->input('shop') . '/admin/apps');
     }
 
@@ -74,5 +79,74 @@ class InstallationController extends Controller
         $store->save();
 
         return $shop instanceof Shop;
+    }
+
+    /**
+     *
+     */
+    private function setupSmsContactListID($name)
+    {
+        $shop = Shop::where(['name' => $name])->first();
+
+        if($shop->getAttribute('burst_sms_list_id')) {
+            return $shop->burst_sms_list_id;
+        }
+
+        $listId = $this->createSmsContactList($name);
+
+        $shop->burst_sms_list_id = $listId;
+
+        $shop->save();
+
+        return $listId;
+    }
+
+    /**
+     * @param $name
+     * @return
+     */
+    private function createSmsContactList($name)
+    {
+        // TODO: Get existing lists and search them here for uninstall / reinstall cases.
+
+        $client = app(BurstClient::class);
+
+        try {
+            $response = new BurstSmsGuzzleResponse($client->request('POST', 'add-list.json', [
+                'form_params' => ['name' => $name]
+            ]));
+        } catch(ClientException $exception) {
+            $response = new BurstSmsGuzzleResponse($exception->getResponse());
+
+            if($response->body->error->code === "KEY_EXISTS") {
+                $listId = $this->findPreviousListId($name);
+            }
+
+            Log::debug(json_encode($response->message));
+
+            return $listId;
+        }
+
+        return $response->body->id;
+    }
+
+    private function findPreviousListId($name)
+    {
+        $client = app(BurstClient::class);
+
+        try {
+            $response = new BurstSmsGuzzleResponse($client->request('GET', 'get-lists.json'));
+        } catch(ClientException $exception) {
+            $response = new BurstSmsGuzzleResponse($exception->getResponse());
+            Log::debug(json_encode($response->message));
+        }
+
+        if(!$list = collect($response->body->lists)->filter(function($item) use ($name) {
+            return $item->name === $name;
+        })->first()) {
+            return null;
+        }
+
+        return $list->id;
     }
 }

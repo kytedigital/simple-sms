@@ -1,35 +1,62 @@
 import React, { Component } from 'react';
-import {AppProvider, Page, Layout, Card, Banner, Pagination} from '@shopify/polaris';
+import {AppProvider, Page, Layout, Card, Banner, Toast} from '@shopify/polaris';
 import SendifySdk from '../services/SendifySdk';
 import AvailablePlaceholders from './AvailablePlaceholders';
-import RecipientsList from "./RecipientsList";
 import BannerNotice from "./BannerNotice";
 import CustomerList from "./CustomerList";
 import LoadingPage from './LoadingPage';
 import Message from "./Message";
 import ProcessingList from "./ProcessingList";
+import ResetOptionsModal from "./ResetOptionsModal";
+import SendConfirmationModal from "./SendConfirmationModal";
+
+const defaultState = {
+    status: 0,
+    notice: "",
+    message: "",
+    customers: [],
+    noticeTitle: "",
+    fieldErrors: [],
+    showToast: false,
+    toastText: '',
+    dispatchDetails: [],
+    showResetOptions: false,
+    showTestingBanner: true,
+    statusMessage: "Pending",
+    selectedRecipientIds: [],
+    showSendConfirmation: false,
+    showMissingPeopleBanner: true
+};
 
 export default class Dashboard extends Component {
     constructor(props) {
         super(props);
 
-        this.state = {
-            customers: [],
-            selectedRecipientIds: [],
-            message: "",
-            phoneNumber: "",
-            noticeTitle: "",
-            notice: "",
-            dispatchDetails: [],
-            status: 0,
-            statusMessage: "Pending",
-            fieldErrors: [],
-            showTestingBanner: true,
-            showMissingPeopleBanner: true
-        };
+        this.state = defaultState;
 
         this.setEcho();
         this.listenToEchos()
+    }
+
+    reset() {
+        this.setState({
+            status: 0,
+            notice: "",
+            message: "",
+            noticeTitle: "",
+            fieldErrors: [],
+            showToast: false,
+            toastText: '',
+            dispatchDetails: [],
+            showResetOptions: false,
+            statusMessage: "Pending",
+            selectedRecipientIds: [],
+            showSendConfirmation: false,
+        });
+    }
+
+    isLoading() {
+        return !this.state.customers.length;
     }
 
     setEcho() {
@@ -143,6 +170,7 @@ export default class Dashboard extends Component {
         });
 
         this.clearNotices();
+        this.setState({"showSendConfirmation": false});
 
         let error = false; // Because set state is slow
 
@@ -170,91 +198,148 @@ export default class Dashboard extends Component {
         });
 
         SendifySdk.sendMessage(this.state.message, this.selectedRecipients(), (response) => {
-            let title = response.status === 200 ? 'Success' : 'Oops, a problem occurred.';
-            this.setState({"noticeTitle": title, "notice": response.message, "status": 1, "statusMessage": "Queued"});
+            this.setState({"showToast": true, "toastText": response.message, "status": 1, "statusMessage": "Queued"});
         });
     };
+
+    showResetOptions() {
+        this.setState({"showResetOptions": true});
+    }
+
+    showSendConfirmation() {
+        this.setState({"showSendConfirmation": true});
+    }
 
     changeMessage(value) {
         this.setState({"message": value}); this.clearFieldError("message");
     }
 
     getFooterAction() {
-        console.log('w=stats', this.state.status )
-        return this.state.status ? null : {content: 'Send', onAction: () => this.sendMessage()};
+        return this.state.status ?
+            {content: 'Send Another', onAction: () => this.showResetOptions()} :
+            {content: 'Send', onAction: () => this.showSendConfirmation()};
     }
 
     render() {
+
+        const {
+            showToast,
+            toastText,
+            showResetOptions,
+            showSendConfirmation
+        } = this.state;
+
         if (!this.state.customers) { return <LoadingPage /> }
 
-        return <AppProvider>
-                <Page>
-                    <Layout>
-                        <Layout.Section secondary >
-                            <CustomerList
-                                onChange={this.changeCustomers.bind(this)}
-                                selectAllCustomers={this.selectAllCustomers.bind(this)}
-                                unSelectAllCustomers={this.unSelectAllCustomers.bind(this)}
-                                selected={this.state.selectedRecipientIds}
-                                customers={this.acceptableCustomers()}
-                                resultsPerPage={10}
-                                disabled={this.state.status}
-                            />
-                            {(this.state.showMissingPeopleBanner) &&
-                                <div>
-                                   <br />
-                                    <Banner
-                                        title="Someone missing?"
-                                        status="informational"
-                                        action={{content: 'Ok, got it!', onAction: () => this.setState({'showMissingPeopleBanner': false}) }}
-                                        onDismiss={() => this.setState({'showMissingPeopleBanner': false})}
-                                    >
-                                        <div>
-                                            <p>The customer list will only include customers who have opted to accept
-                                                marketing and who have a phone number set in their Shopify profile.</p>
-                                        </div>
-                                    </Banner>
-                                 </div>
-                            }
-                        </Layout.Section>
-                        <Layout.Section>
-                            <BannerNotice
-                                title={this.state.noticeTitle}
-                                notice={this.state.notice}
-                                onDismiss={this.clearNotices.bind(this)}
-                            />
-                            <Card primaryFooterAction={this.getFooterAction()}>
-                                <Message message={this.state.message}
-                                         onChange={this.changeMessage.bind(this)}
-                                         error={this.getFieldErrors("message")}
-                                         disabled={this.state.status}
-                                />
-                                <AvailablePlaceholders />
-                                <ProcessingList channel={this.channel} recipients={this.selectedRecipientsWithStatuses()} />
-                                {/*<RecipientsList recipients={this.selectedRecipientsWithStatuses()} />*/}
-                            </Card>
-                            {(this.state.showTestingBanner) &&
-                                <div>
-                                <br />
-                                    <Banner
-                                        title="How to test your message"
-                                        status="informational"
-                                        action={{content: 'Add yourself as a customer', onAction: () => console.log('/admin/customers/new')}}
-                                        onDismiss={() => this.setState({'showTestingBanner': false})}
-                                    >
-                                        <div>
-                                             <p>It is important to test your message with you own phone before you send it to others.
-                                            The best way to achieve this is to add yourself as a customer, reload the app and then send it
-                                                 to the customer you added.</p>
-                                            <p>Once you are happy with how your message looks, add the rest of your customers and press send.</p>
-                                        </div>
-                                    </Banner>
-                                </div>
-                            }
+        const toastMarkup = showToast ? (
+            <Toast
+                onDismiss={() => this.setState({'showToast': false})}
+                content={toastText}
+            />
+        ) : null;
 
-                        </Layout.Section>
-                    </Layout>
-                </Page>
-            </AppProvider>;
+        const resetOptionsModal = showResetOptions ? (
+            <ResetOptionsModal onReset={() => this.reset()} />
+        ) : null;
+
+        const sendConfirmationModel = showSendConfirmation ? (
+            <SendConfirmationModal message={this.state.message}
+                                   recipientsCount={this.state.selectedRecipientIds.length}
+                                   onSend={() => this.sendMessage()}
+                                   onClose={() => this.setState({"showSendConfirmation": false})}
+
+            />
+        ) : null;
+
+
+        // const customerPicker = <ResourcePicker
+        //     resourceType="Customer"
+        //     open={this.state.customerPickerOpen}
+        //     onSelection={({selection}) => {
+        //         console.log('Selected customers: ', selection);
+        //         this.changeCustomers(selection);
+        //         this.setState({resourcePickerOpen: false});
+        //     }}
+        //     onCancel={() => this.setState({resourcePickerOpen: false})}
+        // />;
+
+        const actualPageMarkup =
+                <Layout>
+                    <Layout.Section secondary>
+                        <CustomerList
+                            onChange={this.changeCustomers.bind(this)}
+                            selectAllCustomers={this.selectAllCustomers.bind(this)}
+                            unSelectAllCustomers={this.unSelectAllCustomers.bind(this)}
+                            selected={this.state.selectedRecipientIds}
+                            customers={this.acceptableCustomers()}
+                            resultsPerPage={10}
+                            disabled={this.state.status}
+                        />
+                        {(this.state.showMissingPeopleBanner) &&
+                            <div>
+                               <br />
+                                <Banner
+                                    title="Someone missing?"
+                                    status="informational"
+                                    action={{content: 'Ok, got it!', onAction: () => this.setState({'showMissingPeopleBanner': false}) }}
+                                    onDismiss={() => this.setState({'showMissingPeopleBanner': false})}
+                                >
+                                    <div>
+                                        <p>The customer list will only include customers who have opted to accept
+                                            marketing and who have a phone number set in their Shopify profile.</p>
+                                    </div>
+                                </Banner>
+                             </div>
+                        }
+                    </Layout.Section>
+                    <Layout.Section>
+                        <BannerNotice
+                            title={this.state.noticeTitle}
+                            notice={this.state.notice}
+                            onDismiss={this.clearNotices.bind(this)}
+                        />
+                        <Card primaryFooterAction={this.getFooterAction()}>
+                            <Message message={this.state.message}
+                                     onChange={this.changeMessage.bind(this)}
+                                     error={this.getFieldErrors("message")}
+                                     disabled={this.state.status}
+                            />
+                            <AvailablePlaceholders />
+                            <ProcessingList channel={this.channel} recipients={this.selectedRecipientsWithStatuses()} />
+                            {/*<RecipientsList recipients={this.selectedRecipientsWithStatuses()} />*/}
+                        </Card>
+                        {(this.state.showTestingBanner) &&
+                            <div>
+                            <br />
+                                <Banner
+                                    title="How to test your message"
+                                    status="informational"
+                                    action={{content: 'Add yourself as a customer', onAction: () => console.log('/admin/customers/new')}}
+                                    onDismiss={() => this.setState({'showTestingBanner': false})}
+                                >
+                                    <div>
+                                         <p>It is important to test your message with you own phone before you send it to others.
+                                        The best way to achieve this is to add yourself as a customer, reload the app and then send it
+                                             to the customer you added.</p>
+                                        <p>Once you are happy with how your message looks, add the rest of your customers and press send.</p>
+                                    </div>
+                                </Banner>
+                            </div>
+                        }
+
+                    </Layout.Section>
+                </Layout>;
+
+        const pageMarkup = this.isLoading() ? <LoadingPage /> : actualPageMarkup;
+
+        return (
+                <AppProvider>
+                    <Page>
+                        {pageMarkup}
+                        {resetOptionsModal}
+                        {sendConfirmationModel}
+                    </Page>
+                </AppProvider>
+            );
     }
 }

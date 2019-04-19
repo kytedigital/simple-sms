@@ -1,6 +1,8 @@
 <?php
 
+use App\Models\Shop;
 use Illuminate\Http\Request;
+use App\Http\Helpers\Shopify;
 
 /*
 |--------------------------------------------------------------------------
@@ -24,6 +26,32 @@ Route::group(['namespace' => 'Api', 'middleware' => 'auth.token'], function () {
     Route::get('customers', 'CustomersController@browse');
     Route::get('customers/search', 'CustomersController@search');
     Route::get('customers/{id}', 'CustomersController@read');
+
+    Route::post('customers/redact', function(Request $request) {
+        Log::info('Customer redact requested');
+        Log::debug($request->all());
+       return $request->all();
+    });
+
+    Route::post('customers/delete', function(Request $request) {
+        Log::info('Customer delete requested');
+        Log::debug($request->all());
+        return $request->all();
+    });
+
+
+    Route::post('shop/delete', function(Request $request) {
+
+        Log::info('Shop delete requested');
+        Log::debug($request->all());
+
+        return Shop::where(
+            'name',
+            '=',
+            Shopify::stemName($request->get('shop_domain')))
+            ->delete();
+    });
+
 });
 
 Route::group(['namespace' => 'Api'], function () {

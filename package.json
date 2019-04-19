@@ -25,6 +25,7 @@
         "react-dom": "^16.2.0"
     },
     "dependencies": {
+        "@shopify/app-bridge": "^1.2.0",
         "@shopify/polaris": "^3.3.0",
         "laravel-echo": "^1.5.3",
         "pusher-js": "^4.4.0"

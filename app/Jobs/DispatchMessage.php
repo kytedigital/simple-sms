@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Models\Shop;
 use App\Models\Message;
 use Illuminate\Bus\Queueable;
 use App\Services\BurstSms\Client;
@@ -69,6 +70,9 @@ class DispatchMessage implements ShouldQueue
     {
         Log::debug('Starting DispatchMessage JOB');
 
+        $listId = $this->getShopListId($this->shop);
+
+       // $message = (new Message($this->recipient, $this->message, $this->getShopListId($this->shop)));
         $message = (new Message($this->recipient, $this->message));
 
         $this->dispatchStartedEvent($message);
@@ -81,6 +85,7 @@ class DispatchMessage implements ShouldQueue
             $response = new BurstSmsGuzzleResponse($exception->getResponse());
             Log::debug(json_encode($response->message));
         }
+
 
         // Cheap mode!
       //  $response = new FakeBurstSmsGuzzleResponse();
@@ -106,5 +111,14 @@ class DispatchMessage implements ShouldQueue
     private function dispatchCompletedEvent($message, $response) : void
     {
         MessageDispatchCompleted::dispatch($this->shop, $this->channel, $message, $response);
+    }
+
+    /**
+     * @param $shopName
+     * @return mixed
+     */
+    private function getShopListId($shopName)
+    {
+        return Shop::where('name', '=', $shopName)->first()->getAttribute('burst_sms_list_id');
     }
 }

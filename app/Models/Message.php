@@ -10,6 +10,8 @@ class Message
 
     public $message = '';
 
+    public $listId = 0;
+
     public $status;
 
     public $responseMessage;
@@ -19,10 +21,11 @@ class Message
      * @param Collection $recipient
      * @param string $message
      */
-    public function __construct(Collection $recipient, string $message)
+    public function __construct(Collection $recipient, string $message, $listId = null)
     {
         $this->recipient = $recipient;
         $this->message = $message;
+        $this->listID = $listId;
     }
 
     /**
@@ -54,6 +57,7 @@ class Message
         switch($type) {
             case 'sms' :
                 return ['message' => $this->preparedMessage(),
+                      //  'list_id' => $this->listID,
                         'to' => $this->recipient['phone'] ];
             default :
                 return parent::toArray();

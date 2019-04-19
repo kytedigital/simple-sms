@@ -1,5 +1,6 @@
 import React from 'react';
 import {ResourceList, TextStyle, Pagination, Card} from '@shopify/polaris';
+import './customerList.css';
 
 export default class CustomerList extends React.Component {
     constructor(props) {
@@ -29,6 +30,14 @@ export default class CustomerList extends React.Component {
             maxPageNumber: Math.ceil(props.customers.length / props.resultsPerPage)
         };
     };
+
+    getResults() {
+        if(this.state.searchValue.length) {
+            return this.filteredList();
+        }
+
+        return this.getPageResults();
+    }
 
     getPageResults() {
         const offset = this.state.currentPage * this.props.resultsPerPage;
@@ -62,7 +71,6 @@ export default class CustomerList extends React.Component {
     };
 
     previousPage() {
-        console.log('On Previous');
         this.setState((state) => {
             const currentPage = (state.currentPage - 1) < 0 ? 0 : state.currentPage - 1;
             return { currentPage };
@@ -70,7 +78,6 @@ export default class CustomerList extends React.Component {
     };
 
     nextPage() {
-        console.log('On Next');
         this.setState((state) => {
             const currentPage = (state.currentPage + 1) > state.maxPageNumber ? state.maxPageNumber : state.currentPage + 1;
             return { currentPage };
@@ -108,24 +115,13 @@ export default class CustomerList extends React.Component {
 
         const promotedBulkActions = [
             {
-                content: 'Add tags',
-                onAction: () => console.log('Todo: implement bulk add tags'),
+                content: '',
+                onAction: () => console.log(''),
             },
         ];
 
         const bulkActions = [
-            {
-                content: 'Add tags',
-                onAction: () => console.log('Todo: implement bulk add tags'),
-            },
-            {
-                content: 'Remove tags',
-                onAction: () => console.log('Todo: implement bulk remove tags'),
-            },
-            {
-                content: 'Delete customers',
-                onAction: () => console.log('Todo: implement bulk delete'),
-            },
+
         ];
 
         const filterControl = (
@@ -141,7 +137,7 @@ export default class CustomerList extends React.Component {
                 <div style={{ borderBottom: '.1rem solid #dfe3e8' }}>
                     <ResourceList
                         resourceName={resourceName}
-                        items={this.getPageResults()}
+                        items={this.getResults()}
                         renderItem={this.renderItem}
                         selectedItems={this.props.selected}
                         onSelectionChange={this.props.onChange}
@@ -164,7 +160,6 @@ export default class CustomerList extends React.Component {
                     />
                 </div>
             </Card>
-
         );
     }
 }
