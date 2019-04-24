@@ -20,6 +20,9 @@ export default class MessageStatusBadge extends Component {
     }
 
     render() {
-        return <Badge progress={this.mapProgress(this.props.status)} status={this.mapStatus(this.props.status)}>{this.props.message}</Badge>
+        let { message } = this.props; if(typeof message === 'object') { message = message.reason }
+        return <Badge progress={this.mapProgress(this.props.status)} status={this.mapStatus(this.props.status)}>
+            {message}
+        </Badge>
     }
 }

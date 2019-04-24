@@ -21,7 +21,6 @@ class MessageController extends Controller
         Log::debug('Received Message Dispatch Request');
         Log::debug($request);
 
-
         if($shop = $this->getShop($request->get('shop'))) {
             CommonApiResponses::missingSubscription($request->get('shop'));
         }
@@ -71,17 +70,5 @@ class MessageController extends Controller
     public function availableChannels()
     {
         return config('services.messaging.channels');
-    }
-
-    /**
-     * @param $channels
-     * @return array
-     */
-    private function cleanChannels($channels)
-    {
-        $availableChannels = $this->availableChannels();
-        return array_filter($channels, function($channels) use ($availableChannels) {
-            return in_array($channels, $availableChannels);
-        });
     }
 }

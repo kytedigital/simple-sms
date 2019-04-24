@@ -19,36 +19,24 @@ export default class ProcessingList extends Component {
     }
 
     startProcess(details) {
-
-        console.log('STARTED', details);
-
         this.setState(state => {
             processes: state.processes.push(details)
         });
     }
 
     completeProcess(details) {
-
-        console.log('COMPLETED', details);
-
         // Wait 2 seconds
         setTimeout(() => {
-          //  if(state.processes.length < 5) return;
+           if(this.state.processes.length < 5) return;
 
-            console.log('removing, ', details.message.recipient.id, );
             this.setState(state => {
-
                 const cleanedProcessList = state.processes.filter((item) => {
                     return item.message.recipient.id !== details.message.recipient.id;
                 });
 
-                return {
-                    processes: cleanedProcessList
-                };
-
+                return { processes: cleanedProcessList };
             });
-        }, 2000);
-
+        }, 4000);
     }
 
     getProcessingRecipientIds() {
@@ -57,14 +45,10 @@ export default class ProcessingList extends Component {
 
     extractProcessingRecipientsFromStatusList() {
         const processingRecipientIds = this.getProcessingRecipientIds();
-        console.log('processingRecipientIds', processingRecipientIds);
         return this.props.recipients.filter(recipient => processingRecipientIds.indexOf(recipient.id) !== -1);
     }
 
     render() {
-
-        console.log('PROCESSES', this.state.processes);
-        console.log('EXTRACT', this.extractProcessingRecipientsFromStatusList());
         return <div>
             <Card.Section>
                 <TextStyle variation="subdued">{this.props.recipients.length} recipients selected</TextStyle>

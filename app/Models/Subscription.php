@@ -63,7 +63,7 @@ class Subscription extends Model
      * @param $shop
      * @return int
      */
-    protected function getPeriodUsage($shop) : int
+    public function getPeriodUsage($shop) : int
     {
         $periodStart = Carbon::parse($this->billing_on)->toDateTimeString();
         $periodEnd = Carbon::parse($this->billing_on)->addMonth()->toDateTimeString();

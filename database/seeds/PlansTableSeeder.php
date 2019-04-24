@@ -15,68 +15,46 @@ class PlansTableSeeder extends Seeder
         DB::table('plans')->insert(
             [
                 [
-                    'code' => 'beacon-trial',
-                    'product' => 'Beacon',
-                    'name' => 'Beacon Trial',
-                    'description' => '1 Week trial including p to 60 trial messages. Will automatically roll on to 
-                     Beacon SM plan after 7 days unless uninstalled.
-                     All plans covers all third party send fees (70%), Shopify transaction fees (20%) and our 
-                     infrastructure costs.',
-                    'price' => '15.00',
+                    'code' => 'Simple SMS Lite - Intro',
+                    'product' => 'Simple SMS Lite',
+                    'name' => 'Simple SMS Lite - Intro',
+                    'description' => 'Up to 100 messages/month. For occasional comms and notifications.',
+                    'price' => '25.00',
                     'trial_days' => 7,
-                    'message_limit' => 60,
-                    'created_at' => Carbon\Carbon::now(),
-                    'updated_at' => Carbon\Carbon::now()
-                ],
-                [
-                    'code' => 'beacon-sm',
-                    'product' => 'Beacon',
-                    'name' => 'Beacon Small',
-                    'description' => 'Up to 100 messages across all channels / month. 
-                     All plans covers all third party send fees (70%), Shopify transaction fees (20%) and our 
-                     infrastructure costs.',
-                    'price' => '15.00',
-                    'trial_days' => 0,
                     'message_limit' => 100,
                     'created_at' => Carbon\Carbon::now(),
                     'updated_at' => Carbon\Carbon::now()
                 ],
                 [
-                    'code' => 'beacon-md',
-                    'product' => 'Beacon',
-                    'name' => 'Beacon Medium',
-                    'description' => 'Up to 500 messages across all channels / month. 
-                     All plans covers all third party send fees (70%), Shopify transaction fees (20%) and our 
-                     infrastructure costs.',
-                    'price' => '60.00',
+                    'code' => 'Simple SMS Lite - Moderate',
+                    'product' => 'Simple SMS Lite',
+                    'name' => 'Simple SMS Lite - Moderate',
+                    'description' => 'Up to 500 messages/month. For infrequent comms/one or two bulk promos.',
+                    'price' => '50.00',
                     'trial_days' => 0,
                     'message_limit' => 500,
                     'created_at' => Carbon\Carbon::now(),
                     'updated_at' => Carbon\Carbon::now()
                 ],
                 [
-                    'code' => 'beacon-lg',
-                    'product' => 'Beacon',
-                    'name' => 'Beacon Large',
-                    'description' => 'Up to 1000 messages across all channels / month. 
-                     All plans covers all third party send fees (70%), Shopify transaction fees (20%) and our 
-                     infrastructure costs.',
-                    'price' => '120.00',
+                    'code' => 'Simple SMS Lite - Regular',
+                    'product' => 'Simple SMS Lite',
+                    'name' => 'Simple SMS Lite - Regular',
+                    'description' => 'Up to 1000 messages/month. For moderate comms/one or two bulk promos.',
+                    'price' => '80.00',
                     'trial_days' => 0,
                     'message_limit' => 1000,
                     'created_at' => Carbon\Carbon::now(),
                     'updated_at' => Carbon\Carbon::now()
                 ],
                 [
-                    'code' => 'beacon-xl',
-                    'product' => 'Beacon',
-                    'name' => 'Beacon XL',
-                    'description' => 'Up to 5000 messages across all channels / month. 
-                     Covers all third party send fees (70%), Shopify transaction fees (20%) and our infrastructure 
-                     costs.',
-                    'price' => '590.00',
+                    'code' => 'Simple SMS Lite - Frequent',
+                    'product' => 'Simple SMS Lite',
+                    'name' => 'Simple SMS Lite - Frequent',
+                    'description' => 'Up to 2000 messages/month. For regular comms/promos.',
+                    'price' => '150.00',
                     'trial_days' => 0,
-                    'message_limit' => 5000,
+                    'message_limit' => 2000,
                     'created_at' => Carbon\Carbon::now(),
                     'updated_at' => Carbon\Carbon::now()
                 ]

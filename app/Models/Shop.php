@@ -7,11 +7,12 @@ use App\Http\Helpers\Shopify;
 use App\Services\Shopify\Client;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Database\Eloquent\Model;
+use App\Http\Helpers\BurstSubAccountHelper;
 
 class Shop extends Model
 {
     /**
-     * Extractable Shop Properties // TODO: Move into shop model
+     * Extractable Shop Properties
      */
     const MESSAGE_PROPERTIES = [
         'name',
@@ -28,7 +29,43 @@ class Shop extends Model
 
     private $client;
 
-    protected $fillable = ['name', 'token', 'burst_sms_list_id'];
+    protected $fillable = [
+        'name',
+        'token',
+        'burst_sms_client_id',
+        'burst_sms_client_api_token',
+        'burst_sms_client_api_secret'
+    ];
+
+    /**
+     * @param $name
+     * @return mixed
+     */
+    public static function byNameOrFail($name)
+    {
+        return self::where(['name' => $name])->firstOrFail();
+    }
+
+    /**
+     * @param $name
+     * @return mixed
+     */
+    public static function byName($name)
+    {
+        return self::firstOrCreate(['name' => $name]);
+    }
+
+    /**
+     * @param $token
+     * @return $this
+     */
+    public function saveShopifyToken($token)
+    {
+        $this->token = $token;
+        $this->save();
+
+        return $this;
+    }
 
     /**
      * Get the stores subscription.
@@ -116,5 +153,13 @@ class Shop extends Model
     public function messageProperties()
     {
         return collect($this->shopDetails())->only(self::MESSAGE_PROPERTIES);
+    }
+
+    /**
+     * @return bool
+     */
+    public function setUpClientAccount()
+    {
+        return BurstSubAccountHelper::findOrSetupSmsClientAccount($this);
     }
 }

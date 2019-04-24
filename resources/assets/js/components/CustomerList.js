@@ -7,10 +7,10 @@ export default class CustomerList extends React.Component {
         super(props);
 
         this.state = {
-            sortOn: 'last_name',
             order: 'ASC',
             currentPage: 0,
             searchValue: '',
+            sortOn: 'last_name',
             lastSelectionState: "none",
             count: this.props.customers.length,
             maxPageNumber: Math.ceil(this.props.customers.length / this.props.resultsPerPage),
@@ -86,8 +86,8 @@ export default class CustomerList extends React.Component {
 
     getSelectionAction() {
         return this.state.lastSelectionState === 'none' ?
-            {  content: 'Select all '+this.state.count+' customers in your store', onAction: () => this.props.selectAllCustomers() } :
-            {  content: 'Unselect '+this.props.selected.length+' customers', onAction: () => this.props.unSelectAllCustomers() }
+            { content: 'Select all '+this.state.count+' customers in your store', onAction: () => this.props.selectAllCustomers() } :
+            { content: 'Unselect '+this.props.selected.length+' customers', onAction: () => this.props.unSelectAllCustomers() }
     }
 
     renderItem(item) {
@@ -99,9 +99,7 @@ export default class CustomerList extends React.Component {
                 accessibilityLabel={`Add ${first_name} ${last_name} to recipients list.`}
                 persistActions
             >
-                <h3>
-                    <TextStyle variation="strong">{first_name} {last_name}</TextStyle>
-                </h3>
+                <h3><TextStyle variation="strong">{first_name} {last_name}</TextStyle></h3>
                 <div><TextStyle variation="accent">{phone}</TextStyle></div>
             </ResourceList.Item>
         );
@@ -141,13 +139,12 @@ export default class CustomerList extends React.Component {
                         renderItem={this.renderItem}
                         selectedItems={this.props.selected}
                         onSelectionChange={this.props.onChange}
-                        promotedBulkActions={promotedBulkActions}
-                        bulkActions={bulkActions}
+                        promotedBulkActions={!this.props.disabled ? promotedBulkActions : null}
+                        bulkActions={!this.props.disabled ? bulkActions : null}
                         loading={!this.state.count}
                         hasMoreItems={true}
                         showHeader={true}
                         filterControl={filterControl}
-                        disabled={this.props.disabled}
                     />
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'center', margin: '20px' }}>

@@ -24,8 +24,14 @@ export default class SendifySdk {
         });
     }
 
-    static call(url, callback, method = 'GET', data = {}) {
+    static getSubscriptionDetails(callback) {
+        return this.call('subscription', function(response) {
+            console.log('Subscription Data Response', response.data.item);
+            return callback(response.data.item);
+        });
+    }
 
+    static call(url, callback, method = 'GET', data = {}) {
         const options = {
             base: window.Sendify.apiBase,
             token: window.Sendify.token,

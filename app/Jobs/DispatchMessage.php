@@ -42,7 +42,7 @@ class DispatchMessage implements ShouldQueue
     /**
      * @var string
      */
-    protected $shop;
+    protected $shopName;
 
     /**
      * Create a new job instance.
@@ -50,14 +50,14 @@ class DispatchMessage implements ShouldQueue
      * @param string $channel
      * @param Collection $recipient
      * @param string $text
-     * @param string $shop
+     * @param string $shopName
      */
-    public function __construct(string $channel, Collection $recipient, string $text, string $shop)
+    public function __construct(string $channel, Collection $recipient, string $text, string $shopName)
     {
         $this->channel = $channel;
         $this->recipient = $recipient;
         $this->message = $text;
-        $this->shop = $shop;
+        $this->shopName = $shopName;
     }
 
     /**
@@ -66,13 +66,13 @@ class DispatchMessage implements ShouldQueue
      * @param Client $client
      * @return void
      */
-    public function handle(Client $client)
+    public function handle()
     {
         Log::debug('Starting DispatchMessage JOB');
 
-        $listId = $this->getShopListId($this->shop);
+        $shop = Shop::byName($this->shopName);
+        $client = $this->getBurstClientForStore($shop);
 
-       // $message = (new Message($this->recipient, $this->message, $this->getShopListId($this->shop)));
         $message = (new Message($this->recipient, $this->message));
 
         $this->dispatchStartedEvent($message);
@@ -101,7 +101,7 @@ class DispatchMessage implements ShouldQueue
      */
     private function dispatchStartedEvent($message) : void
     {
-        MessageDispatchStarted::dispatch($this->shop, $this->channel, $message);
+        MessageDispatchStarted::dispatch($this->shopName, $this->channel, $message);
     }
 
     /**
@@ -110,15 +110,19 @@ class DispatchMessage implements ShouldQueue
      */
     private function dispatchCompletedEvent($message, $response) : void
     {
-        MessageDispatchCompleted::dispatch($this->shop, $this->channel, $message, $response);
+        MessageDispatchCompleted::dispatch($this->shopName, $this->channel, $message, $response);
     }
 
     /**
-     * @param $shopName
-     * @return mixed
+     * @param $shop
+     * @return Client
      */
-    private function getShopListId($shopName)
+    private function getBurstClientForStore($shop)
     {
-        return Shop::where('name', '=', $shopName)->first()->getAttribute('burst_sms_list_id');
+        return new Client(
+            $shop->getAttribute('burst_sms_client_api_key'),
+            $shop->getAttribute('burst_sms_client_api_secret'),
+            config('services.burstsms.api_base')
+        );
     }
 }

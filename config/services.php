@@ -43,7 +43,8 @@ return [
     'burstsms' => [
         'api_key' => env('BURST_SMS_API_KEY'),
         'api_secret' => env('BURST_SMS_API_SECRET'),
-        'api_base' => env('BURST_SMS_API_BASE')
+        'api_base' => env('BURST_SMS_API_BASE'),
+        'backup_msisdn' => env('BURST_SMS_BACKUP_MSISDN')
     ],
 
     'mailchimp' => [

@@ -66,5 +66,7 @@ class Kernel extends HttpKernel
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
         'checkShop' => \App\Http\Middleware\CheckForShop::class,
         'checkHmac' => \App\Http\Middleware\CheckHmac::class,
+        'checkNounce' => \App\Http\Middleware\CheckNounce::class,
+        'redirectShopifyAppInstalls' => \App\Http\Middleware\RedirectIfShopifyAppInstallRequest::class,
     ];
 }

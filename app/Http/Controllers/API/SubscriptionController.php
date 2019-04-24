@@ -3,12 +3,11 @@
 namespace App\Http\Controllers\Api;
 
 use Carbon\Carbon;
-use App\MessageLog;
 use App\Models\Shop;
-use App\Models\Plan;
+use App\Models\MessageLog;
 use Illuminate\Http\Request;
-use Illuminate\Http\JsonResponse;
 use App\Services\Shopify\Client;
+use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 
 class SubscriptionController extends Controller
@@ -63,17 +62,8 @@ class SubscriptionController extends Controller
         $periodEnd = Carbon::parse($start)->addMonth()->toDateTimeString();
 
         return MessageLog::where('shop', $shop)
-            ->where('created_at', '>', $periodStart)
-            ->where('created_at', '<', $periodEnd)
-            ->count();
-    }
-
-    /**
-     * @param $shop
-     * @return mixed
-     */
-    private function getTotalUsageByShop($shop)
-    {
-        return MessageLog::where('shop', $shop)->count();
+                            ->where('created_at', '>', $periodStart)
+                            ->where('created_at', '<', $periodEnd)
+                            ->count();
     }
 }

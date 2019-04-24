@@ -1,31 +1,35 @@
 import React, { Component } from 'react';
-import {AppProvider, Page, Layout, Card, Banner, Toast} from '@shopify/polaris';
+import {AppProvider, Page, Layout, Card, Toast} from '@shopify/polaris';
 import SendifySdk from '../services/SendifySdk';
-import AvailablePlaceholders from './AvailablePlaceholders';
+import Message from "./Message";
+import LoadingPage from './LoadingPage';
 import BannerNotice from "./BannerNotice";
 import CustomerList from "./CustomerList";
-import LoadingPage from './LoadingPage';
-import Message from "./Message";
+import CreditSummary from "./CreditSummary";
 import ProcessingList from "./ProcessingList";
 import ResetOptionsModal from "./ResetOptionsModal";
+import AvailablePlaceholders from './AvailablePlaceholders';
 import SendConfirmationModal from "./SendConfirmationModal";
+
+const singleMessageLength = 160;
+const unicodeSingleMessageLength = 70;
 
 const defaultState = {
     status: 0,
     notice: "",
     message: "",
     customers: [],
+    toastText: '',
     noticeTitle: "",
     fieldErrors: [],
     showToast: false,
-    toastText: '',
     dispatchDetails: [],
+    processingResults: [],
     showResetOptions: false,
-    showTestingBanner: true,
+    subscriptionDetails: null,
     statusMessage: "Pending",
     selectedRecipientIds: [],
     showSendConfirmation: false,
-    showMissingPeopleBanner: true
 };
 
 export default class Dashboard extends Component {
@@ -33,26 +37,33 @@ export default class Dashboard extends Component {
         super(props);
 
         this.state = defaultState;
-
-        this.setEcho();
-        this.listenToEchos()
     }
 
     reset() {
-        this.setState({
-            status: 0,
-            notice: "",
-            message: "",
-            noticeTitle: "",
-            fieldErrors: [],
-            showToast: false,
-            toastText: '',
-            dispatchDetails: [],
-            showResetOptions: false,
-            statusMessage: "Pending",
-            selectedRecipientIds: [],
-            showSendConfirmation: false,
-        });
+        this.setState(defaultState);
+        this.fetchShopData();
+    }
+
+    componentWillMount() {
+        this.setEcho();
+        this.listenToEchos();
+        this.fetchShopData();
+    }
+
+    fetchShopData() {
+        SendifySdk.getCustomers((customers) => {this.setState({"customers": customers})});
+        SendifySdk.getSubscriptionDetails((details) => {this.setState({"subscriptionDetails": details})});
+    }
+
+    messageHasUnicode() {
+        try {
+            // Try to convert to utf-8
+            decodeURIComponent(escape(this.state.message)); // If the conversion succeeds, text is not utf-8
+        }catch(e) {
+            return true;
+        }
+
+        return false; // returned text is always utf-8
     }
 
     isLoading() {
@@ -63,6 +74,23 @@ export default class Dashboard extends Component {
         this.channel = window.Echo.private('shop.'+this.props.shop);
     }
 
+    getMaxSingleCharacterLength() {
+        return this.messageHasUnicode() ? unicodeSingleMessageLength : singleMessageLength;
+    }
+
+    getMaxCharacterLength() {
+        return this.getMaxSingleCharacterLength() * 4;
+    }
+
+    calculateMessageLength() {
+        return Math.ceil(this.state.message.length / this.getMaxSingleCharacterLength());
+    }
+
+    calculateRequiredCredits() {
+        console.log(this.calculateMessageLength());
+        return this.calculateMessageLength() * this.state.selectedRecipientIds.length;
+    }
+
     listenToEchos() {
         console.debug('Subscribing to private-shop.'+this.props.shop);
         this.channel.listen('MessageDispatchCompleted', (details) => {this.messageCompleteEcho(details);})
@@ -71,34 +99,30 @@ export default class Dashboard extends Component {
     }
 
     messageStartedEcho(details) {
-        console.debug('Incoming Starting Dispatch Details', details);
-
         this.setState({
             "noticeTitle": "Progress...",
             "notice": details.notice
         });
-
-        console.debug('Augmented Dispatch Details', this.state.dispatchDetails);
     }
 
     messageCompleteEcho(details) {
         console.debug('Incoming Completed Dispatch Details', details);
 
-        const newDetails = {
-                'recipient': details.message.recipient.id,
-                'message': details.response.message,
-                'status': details.response.status
-            };
+        let message = details.response.message;
+        if(typeof message === 'object') { message = message.reason }
 
-        this.setState({
-            dispatchDetails: [...this.state.dispatchDetails, newDetails]
-        });
+        const newDetails = {
+            'recipient': details.message.recipient.id,
+            'message': message,
+            'status': details.response.status
+        };
+
+        this.setState({ dispatchDetails: [...this.state.dispatchDetails, newDetails] });
 
         console.debug('Augmented Dispatch Details', this.state.dispatchDetails);
     }
 
     acceptableCustomers() {
-        console.log('Dashboard customers', this.state.customers);
         return this.state.customers.filter((customer) => {
             return customer.phone && customer.accepts_marketing;
         });
@@ -136,10 +160,6 @@ export default class Dashboard extends Component {
         });
     }
 
-    componentWillMount() {
-        SendifySdk.getCustomers((customers) => {this.setState({"customers": customers})});
-    }
-
     clearNotices() {
         this.setState({"notice": '', "noticeTitle": "", "fieldErrors": []});
     }
@@ -170,7 +190,6 @@ export default class Dashboard extends Component {
         });
 
         this.clearNotices();
-        this.setState({"showSendConfirmation": false});
 
         let error = false; // Because set state is slow
 
@@ -189,6 +208,8 @@ export default class Dashboard extends Component {
         }
 
         if(error) return;
+
+        this.setState({"showSendConfirmation": false});
 
         this.setState({
             "status": 1,
@@ -211,6 +232,7 @@ export default class Dashboard extends Component {
     }
 
     changeMessage(value) {
+        console.log(value);
         this.setState({"message": value}); this.clearFieldError("message");
     }
 
@@ -221,7 +243,6 @@ export default class Dashboard extends Component {
     }
 
     render() {
-
         const {
             showToast,
             toastText,
@@ -239,29 +260,31 @@ export default class Dashboard extends Component {
         ) : null;
 
         const resetOptionsModal = showResetOptions ? (
-            <ResetOptionsModal onReset={() => this.reset()} />
+            <ResetOptionsModal
+                onReset={() => this.reset()}
+            />
         ) : null;
 
         const sendConfirmationModel = showSendConfirmation ? (
-            <SendConfirmationModal message={this.state.message}
-                                   recipientsCount={this.state.selectedRecipientIds.length}
-                                   onSend={() => this.sendMessage()}
-                                   onClose={() => this.setState({"showSendConfirmation": false})}
+            <SendConfirmationModal
+                message={this.state.message}
+                recipientsCount={this.state.selectedRecipientIds.length}
+                onSend={() => this.sendMessage()}
+                onClose={() => this.setState({"showSendConfirmation": false})}
 
             />
         ) : null;
 
+        console.log('REQUIRED', this.calculateRequiredCredits());
 
-        // const customerPicker = <ResourcePicker
-        //     resourceType="Customer"
-        //     open={this.state.customerPickerOpen}
-        //     onSelection={({selection}) => {
-        //         console.log('Selected customers: ', selection);
-        //         this.changeCustomers(selection);
-        //         this.setState({resourcePickerOpen: false});
-        //     }}
-        //     onCancel={() => this.setState({resourcePickerOpen: false})}
-        // />;
+        const creditSummary = this.state.subscriptionDetails ? (
+            <CreditSummary
+                monthlyLmit={this.state.subscriptionDetails.message_limit}
+                remaining={this.state.subscriptionDetails.usage.period_remaining}
+                requiredCredits={this.calculateRequiredCredits()}
+            />
+        ) : null;
+
 
         const actualPageMarkup =
                 <Layout>
@@ -275,22 +298,6 @@ export default class Dashboard extends Component {
                             resultsPerPage={10}
                             disabled={this.state.status}
                         />
-                        {(this.state.showMissingPeopleBanner) &&
-                            <div>
-                               <br />
-                                <Banner
-                                    title="Someone missing?"
-                                    status="informational"
-                                    action={{content: 'Ok, got it!', onAction: () => this.setState({'showMissingPeopleBanner': false}) }}
-                                    onDismiss={() => this.setState({'showMissingPeopleBanner': false})}
-                                >
-                                    <div>
-                                        <p>The customer list will only include customers who have opted to accept
-                                            marketing and who have a phone number set in their Shopify profile.</p>
-                                    </div>
-                                </Banner>
-                             </div>
-                        }
                     </Layout.Section>
                     <Layout.Section>
                         <BannerNotice
@@ -298,35 +305,22 @@ export default class Dashboard extends Component {
                             notice={this.state.notice}
                             onDismiss={this.clearNotices.bind(this)}
                         />
+                        {creditSummary}
                         <Card primaryFooterAction={this.getFooterAction()}>
                             <Message message={this.state.message}
                                      onChange={this.changeMessage.bind(this)}
                                      error={this.getFieldErrors("message")}
                                      disabled={this.state.status}
+                                     maxSingleLengthStandard={singleMessageLength}
+                                     maxSingleLengthUnicode={unicodeSingleMessageLength}
+                                     hasUnicode={this.messageHasUnicode()}
                             />
                             <AvailablePlaceholders />
-                            <ProcessingList channel={this.channel} recipients={this.selectedRecipientsWithStatuses()} />
-                            {/*<RecipientsList recipients={this.selectedRecipientsWithStatuses()} />*/}
+                            <ProcessingList
+                                channel={this.channel}
+                                recipients={this.selectedRecipientsWithStatuses()}
+                            />
                         </Card>
-                        {(this.state.showTestingBanner) &&
-                            <div>
-                            <br />
-                                <Banner
-                                    title="How to test your message"
-                                    status="informational"
-                                    action={{content: 'Add yourself as a customer', onAction: () => console.log('/admin/customers/new')}}
-                                    onDismiss={() => this.setState({'showTestingBanner': false})}
-                                >
-                                    <div>
-                                         <p>It is important to test your message with you own phone before you send it to others.
-                                        The best way to achieve this is to add yourself as a customer, reload the app and then send it
-                                             to the customer you added.</p>
-                                        <p>Once you are happy with how your message looks, add the rest of your customers and press send.</p>
-                                    </div>
-                                </Banner>
-                            </div>
-                        }
-
                     </Layout.Section>
                 </Layout>;
 

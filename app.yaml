@@ -48,6 +48,7 @@ env_variables:
   BURST_SMS_API_SECRET: "apisecretkey"
   BURST_SMS_API_BASE: "https://api.transmitsms.com/"
   BURST_SMS_FIXED_NUMBER: "61428974807"
+  BURST_SMS_BACKUP_MSISDN: "6190928809"
 
   MESSAGING_CHANNELS: "sms"
 

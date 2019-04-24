@@ -5,26 +5,15 @@ namespace App\Http\Controllers;
 use App\Models\Plan;
 use App\Models\Shop;
 use App\Traits\UsesNames;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use GuzzleHttp\Client as Guzzle;
 use App\Services\Shopify\Client;
 use Illuminate\Support\Facades\Log;
 use GuzzleHttp\Exception\GuzzleException;
 
-class SubscriptionController extends Controller
+class SubscriptionController extends AppController
 {
     use UsesNames;
-
-    /**
-     * @var string
-     */
-    private $clientId;
-
-    /**
-     * @var string
-     */
-    private $clientSecret;
 
     /**
      * @var
@@ -37,23 +26,20 @@ class SubscriptionController extends Controller
     private $client;
 
     /**
-     * InstallationController constructor.
-     */
-    public function __construct()
-    {
-        $this->clientId = config('services.shopify.app_api_key');
-        $this->clientSecret = config('services.shopify.app_api_secret');
-    }
-
-    /**
      * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
     public function view()
     {
-        $subscription = Shop::where('name', $this->shopName())->first()->subscription();
-        $plan = Plan::where('code', $subscription->name)->first();
+        $shop = Shop::byName($this->shopName());
+        $subscription = $shop->subscription();
 
-        return view('subscription', ['subscription' => $subscription, 'plan' => $plan, 'shop' => $this->shopName()]);
+        $usage = $subscription->getPeriodUsage($this->shopName());
+
+        return view('subscription', [
+            'shop' => $this->shopName(),
+            'subscription' => $subscription,
+            'usedMessages' => 110,
+        ]);
     }
 
     /**
@@ -78,7 +64,7 @@ class SubscriptionController extends Controller
     /**
      * @param Request $request
      * @param Client $client
-     * @return void
+     * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse|string
      */
     public function createSubscription(Request $request, Client $client)
     {
@@ -105,28 +91,7 @@ class SubscriptionController extends Controller
 
         $charge = json_decode($result->getBody())->recurring_application_charge;
 
-        // TODO: What the hell?
-
         return "<script>window.top.location.href = \"{$charge->confirmation_url}\";</script>";
-
-//        return redirect($charge->confirmation_url);
-    }
-
-    /**
-     * Start the oAuth installation process.
-     *
-     * @param Request $request
-     * @return RedirectResponse
-     */
-    public function startInstall(Request $request)
-    {
-        $redirectUrl = config('app.url') .'/token';
-
-        $request->session()->put('nounce', md5($this->shopName() . time()));
-
-        return response()->redirectTo(
-            "https://{$this->shopName()}.myshopify.com/admin/oauth/authorize?client_id={$this->clientId}&scope=read_customers&redirect_uri=$redirectUrl&state=".session('nounce')
-        );
     }
 
     /**
@@ -153,6 +118,7 @@ class SubscriptionController extends Controller
         $result = json_decode($result->getBody())->recurring_application_charge;
 
         Log::info(json_encode($result));
+
         return response()->redirectTo(route('dashboard', ['shop' => $this->shopName()]))
                          ->with('message', 'Thank you for updating your subscription to '. $result->name);
     }
