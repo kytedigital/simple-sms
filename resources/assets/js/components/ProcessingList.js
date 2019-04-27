@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import {Avatar, Card, ResourceList, TextStyle} from '@shopify/polaris';
 import MessageStatusBadge from "./MessageStatusBadge";
+import ProcessingStats from "./ProcessingStats";
 
 export default class ProcessingList extends Component {
     constructor(props) {
@@ -8,8 +9,11 @@ export default class ProcessingList extends Component {
 
         this.state = {
             processes: [],
+            processed: []
         };
+    }
 
+    componentWillMount() {
         this.listenToEchos()
     }
 
@@ -25,6 +29,11 @@ export default class ProcessingList extends Component {
     }
 
     completeProcess(details) {
+
+        this.setState(state => {
+            processed: state.processed.push(details)
+        });
+
         // Wait 2 seconds
         setTimeout(() => {
            if(this.state.processes.length < 5) return;
@@ -49,35 +58,44 @@ export default class ProcessingList extends Component {
     }
 
     render() {
+        const processSummary = this.props.sending ? (
+            <ProcessingStats
+                queuedItemsCount={this.props.recipients.length}
+                processed={this.state.processed}
+            />
+        ) : null;
+
+        const processingItems = this.extractProcessingRecipientsFromStatusList();
+
         return <div>
-            <Card.Section>
-                <TextStyle variation="subdued">{this.props.recipients.length} recipients selected</TextStyle>
-            </Card.Section>
-            <Card.Section>
-                <ResourceList
-                    resourceName={{singular: 'customer', plural: 'customers'}}
-                    items={this.extractProcessingRecipientsFromStatusList()}
-                    renderItem={(item => {
-                        const {id, first_name, last_name, phone, dispatchStatus, dispatchMessage} = item;
-                        const media = <Avatar customer size="medium" name={`${first_name} ${last_name}`} />;
-                        return (
-                            <ResourceList.Item
-                                id={id}
-                                url={`/admin/customers/` + id}
-                                media={media}
-                                accessibilityLabel={`View details for ${first_name} ${last_name}`}
-                                style={{transition: "0.5s", animation: "fadeOut 500ms"}}
-                            >
-                                <h3>
-                                    <TextStyle variation="strong">{first_name} {last_name}</TextStyle>
-                                </h3>
-                                <div>{phone}</div>
-                                <MessageStatusBadge status={dispatchStatus} message={dispatchMessage} />
-                            </ResourceList.Item>
-                        );
-                    })}
-                />
-            </Card.Section>
+                {processSummary}
+                <Card>
+                    <Card.Section style={{paddingTop: 0}}>
+                        <ResourceList
+                            resourceName={{singular: 'process', plural: 'processes'}}
+                            items={processingItems}
+                            loading={this.props.sending && !processingItems.length}
+                            renderItem={(item => {
+                                const {id, first_name, last_name, phone, dispatchStatus, dispatchMessage} = item;
+                                const media = <Avatar customer size="medium" name={`${first_name} ${last_name}`} />;
+                                return (
+                                    <ResourceList.Item
+                                        id={id}
+                                        url={`/admin/customers/` + id}
+                                        media={media}
+                                        accessibilityLabel={`View details for ${first_name} ${last_name}`}
+                                        style={{transition: "0.5s", animation: "fadeOut 500ms"}}
+                                    >
+                                        <h3><TextStyle variation="strong">{first_name} {last_name}</TextStyle></h3>
+                                        <div>{phone}</div>
+                                        {/*<div>{"+614XXXXXXXX"}</div>*/}
+                                        <MessageStatusBadge status={dispatchStatus} message={dispatchMessage} />
+                                    </ResourceList.Item>
+                                );
+                            })}
+                        />
+                    </Card.Section>
+                </Card>
         </div>
     }
 }

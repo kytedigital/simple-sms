@@ -28,6 +28,13 @@ class State extends Facade
     public $offset = 0;
 
     /**
+     * Records offset.
+     *
+     * @var int
+     */
+    public $page = 0;
+
+    /**
      * Filtering.
      *
      * @var null
@@ -77,6 +84,7 @@ class State extends Facade
         $this->direction  = $request->query('direction', '');
         $this->fields     = $request->query('fields');
         $this->query      = $request->query('query');
+        $this->page       = $request->query('page');
     }
 
     /**
@@ -88,7 +96,8 @@ class State extends Facade
     {
         $state = (array) $this;
 
-        $state['page'] = floor($this->offset / $this->limit);
+//        $state['page'] = floor($this->offset / $this->limit);
+        $state['page'] = $this->page;
         $state['order'] = $this->sort .' '. $this->direction;
 
         return http_build_query($state);

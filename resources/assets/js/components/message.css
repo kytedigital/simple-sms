@@ -1,3 +1,7 @@
 .Polaris-TextField #messageInput {
     height: 120px !important;
 }
+
+.Polaris-Layout__Section {
+    min-width: initial !important;
+}

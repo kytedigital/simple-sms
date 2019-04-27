@@ -91,8 +91,6 @@ class DispatchMessage implements ShouldQueue
       //  $response = new FakeBurstSmsGuzzleResponse();
      //   $response = new FakeBurstSmsGuzzleResponse(500, 'The customer has opted out!');
 
-        Log::debug('Response');
-
         $this->dispatchCompletedEvent($message, $response);
     }
 

@@ -176,7 +176,7 @@
                                     <li class="pricing-features-item">In-app support and guides access</li>
                                 </ul>
                                 <span class="pricing-price">$25/month</span>
-                                @if($usedMessages >= 100)
+                                @if(isset($usedMessages) && $usedMessages >= 100)
                                     <p class="subscription-text">
                                         Can't downgrade to this plan until the end of the
                                         period because {{$usedMessages}} messages have been used.
@@ -198,7 +198,7 @@
                                     <li class="pricing-features-item">In-app support and guides access</li>
                                 </ul>
                                 <span class="pricing-price">$50/month</span>
-                                @if($usedMessages >= 500)
+                                @if($usedMessages) && $usedMessages >= 500)
                                     <p class="subscription-text">
                                         Can't downgrade to this plan until the end of the
                                         period because {{$usedMessages}} messages have been used.

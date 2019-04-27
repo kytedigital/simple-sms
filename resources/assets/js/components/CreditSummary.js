@@ -5,7 +5,7 @@ import './message.css';
 export default class CreditSummary extends Component {
     render() {
         const rows = [
-            [this.props.monthlyLmit, this.props.remaining, this.props.requiredCredits],
+            ["Credits", this.props.monthlyLmit, this.props.remaining, this.props.requiredCredits],
         ];
 
         return <Card>
@@ -14,8 +14,10 @@ export default class CreditSummary extends Component {
                             'text',
                             'text',
                             'text',
+                            'text',
                         ]}
                         headings={[
+                            '',
                             'Monthly',
                             'Remaining',
                             'Required',

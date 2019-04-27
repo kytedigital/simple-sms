@@ -3,7 +3,9 @@
 namespace App\Listeners;
 
 use App\Models\MessageLog;
+use App\Jobs\MarkCustomerOptOut;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Contracts\Bus\Dispatcher;
 use App\Events\MessageDispatchCompleted;
 use Illuminate\Contracts\Queue\ShouldQueue;
 
@@ -18,6 +20,20 @@ class MessageDispatchCompletedEventListener implements ShouldQueue
     public function handle(MessageDispatchCompleted $event)
     {
         $this->logMessage($event);
+        $this->checkForOptOuts($event);
+    }
+
+    /**
+     * @param $event
+     */
+    private function checkForOptOuts($event)
+    {
+        Log::debug('MessageDispatchCompletedEventListener Response Log');
+        Log::debug(json_encode($event->response));
+        if($event->response->status === 500 &&
+            $event->response->message->reason === "Number has opted-out") {
+            app(Dispatcher::class)->dispatch(new MarkCustomerOptOut($event->shop, $event->message->recipient));
+        }
     }
 
     /**

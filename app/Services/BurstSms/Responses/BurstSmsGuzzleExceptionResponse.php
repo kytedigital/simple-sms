@@ -34,10 +34,7 @@ class BurstSmsGuzzleExceptionResponse implements BurstSmsResponseInterface
      */
     private function breakDown(ClientException $guzzleException)
     {
-        dd($guzzleException->getResponse()->getBody(true));
         $body = json_decode($guzzleException->getMessage());
-
-        dd($body);
 
         $this->status = $guzzleException->getCode();
         $this->message = $body->reason;

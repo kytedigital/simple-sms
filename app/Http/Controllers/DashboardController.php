@@ -32,7 +32,7 @@ class DashboardController extends AppController
 
         if(!$shop->hasSubscription())
             return view('subscription',
-                ['subscription' => null, 'token' => $freshApiToken, 'shop' => $this->shopName()]);
+                ['subscription' => null, 'token' => $freshApiToken, 'shop' => $this->shopName(), 'usedMessages' => 0]);
 
         return view('dashboard',
             ['subscription' => $shop->subscription(), 'token' => $freshApiToken, 'shop' => $this->shopName()]);

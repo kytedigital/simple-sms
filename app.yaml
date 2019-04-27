@@ -44,8 +44,8 @@ env_variables:
   DB_SOCKET: "/cloudsql/shopify-sms:australia-southeast1:shopify-sms"
   MYSQL_DSN: "mysql:dbname=shopify_sms;unix_socket=/cloudsql/shopify-sms:australia-southeast1:shopify-sms"
 
-  BURST_SMS_API_KEY: "230e4ea0fd45e3cba4c93d5bf3d9c296"
-  BURST_SMS_API_SECRET: "apisecretkey"
+  BURST_SMS_API_KEY: "bad2bed8c8fe7c27b71b67cab7106594"
+  BURST_SMS_API_SECRET: "@1withPenguins"
   BURST_SMS_API_BASE: "https://api.transmitsms.com/"
   BURST_SMS_FIXED_NUMBER: "61428974807"
   BURST_SMS_BACKUP_MSISDN: "6190928809"

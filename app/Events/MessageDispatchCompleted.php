@@ -3,12 +3,15 @@
 namespace App\Events;
 
 use App\Models\Message;
+use App\Jobs\MarkCustomerOptOut;
+use Illuminate\Contracts\Bus\Dispatcher;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use App\Services\BurstSms\Responses\BurstSmsResponseInterface;
+use Illuminate\Support\Facades\Log;
 
 class MessageDispatchCompleted implements ShouldBroadcast
 {

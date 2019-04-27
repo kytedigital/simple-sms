@@ -1,5 +1,7 @@
 import * as axios from "axios";
 
+let maxBatches = 4;
+
 export default class SendifySdk {
     static version () {
         return '0.1';
@@ -17,21 +19,33 @@ export default class SendifySdk {
         }, 'POST', data);
     }
 
-    static getCustomers(callback) {
-        return this.call('customers?limit=250', function(response) {
-            console.log('Customers Response', response.data.items);
-            return callback(response.data.items);
-        });
+    static async getCustomers(callback, batchNumber = 1, customers = []) {
+        const customersPerCycle = 250;
+
+        return this.call('customers?limit='+customersPerCycle+'&page='+batchNumber, function(response)
+            {
+                return response.data.items;
+            }).then(function(batch) {
+                customers.push(...batch);
+
+                if(batchNumber >= maxBatches || batch.length < customersPerCycle) {
+                    return callback(customers);
+                }
+
+                SendifySdk.getCustomers(callback, ++batchNumber, customers);
+            }
+        );
+
+      //  return callback(customers);
     }
 
     static getSubscriptionDetails(callback) {
         return this.call('subscription', function(response) {
-            console.log('Subscription Data Response', response.data.item);
             return callback(response.data.item);
         });
     }
 
-    static call(url, callback, method = 'GET', data = {}) {
+    static async call(url, callback, method = 'GET', data = {}) {
         const options = {
             base: window.Sendify.apiBase,
             token: window.Sendify.token,
@@ -44,7 +58,7 @@ export default class SendifySdk {
         try {
             return axios.create({
                     baseURL: options.base,
-                    headers: { 'Authorization': 'Bearer ' + options.token },
+                    headers: {'Authorization': 'Bearer '+options.token},
                     data
                 })
                 .request(options)

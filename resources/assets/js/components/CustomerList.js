@@ -91,7 +91,7 @@ export default class CustomerList extends React.Component {
     }
 
     renderItem(item) {
-        const {id, first_name, last_name, phone} = item;
+        const {id, first_name, last_name, phone, email} = item;
 
         return (
             <ResourceList.Item
@@ -99,8 +99,9 @@ export default class CustomerList extends React.Component {
                 accessibilityLabel={`Add ${first_name} ${last_name} to recipients list.`}
                 persistActions
             >
-                <h3><TextStyle variation="strong">{first_name} {last_name}</TextStyle></h3>
-                <div><TextStyle variation="accent">{phone}</TextStyle></div>
+                <h3><TextStyle variation="strong">{first_name} {last_name} ({phone})</TextStyle></h3>
+                {/*<h3><TextStyle variation="strong">{first_name} {last_name} </TextStyle>({"+614XXXXXXXX"})</h3>*/}
+                <div><TextStyle variation="accent">{email}</TextStyle></div>
             </ResourceList.Item>
         );
     };
@@ -130,32 +131,37 @@ export default class CustomerList extends React.Component {
             />
         );
 
+        const results = this.getResults();
+
+        const pagination = results.length ? (
+            <div style={{display: 'flex', justifyContent: 'center', margin: '20px'}}>
+                <Pagination hasPrevious onPrevious={() => {
+                    this.previousPage();
+                }} hasNext onNext={() => {
+                    this.nextPage();
+                }}
+                />
+            </div>
+        ) : null;
+
         return (
             <Card title={`Available Customers`} actions={[this.getSelectionAction()]}>
                 <div style={{ borderBottom: '.1rem solid #dfe3e8' }}>
                     <ResourceList
                         resourceName={resourceName}
-                        items={this.getResults()}
+                        items={results}
                         renderItem={this.renderItem}
                         selectedItems={this.props.selected}
                         onSelectionChange={this.props.onChange}
                         promotedBulkActions={!this.props.disabled ? promotedBulkActions : null}
                         bulkActions={!this.props.disabled ? bulkActions : null}
-                        loading={!this.state.count}
+                        loadingData={this.props.loadingData}
                         hasMoreItems={true}
                         showHeader={true}
                         filterControl={filterControl}
                     />
                 </div>
-                <div style={{ display: 'flex', justifyContent: 'center', margin: '20px' }}>
-                    <Pagination hasPrevious onPrevious={() => {
-                            this.previousPage();
-                        }}
-                        hasNext onNext={() => {
-                            this.nextPage();
-                        }}
-                    />
-                </div>
+                {pagination}
             </Card>
         );
     }

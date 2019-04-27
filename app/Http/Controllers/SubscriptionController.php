@@ -38,7 +38,7 @@ class SubscriptionController extends AppController
         return view('subscription', [
             'shop' => $this->shopName(),
             'subscription' => $subscription,
-            'usedMessages' => 110,
+            'usedMessages' => $usage,
         ]);
     }
 

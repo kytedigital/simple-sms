@@ -104,18 +104,10 @@ class Client
      */
     public function getClient() : GuzzleClient
     {
-        if($this->auth_method === self::AUTH_METHOD_BEARER) {
-
-            return $this->client = new GuzzleClient([
-                'base_uri' => $this->store_url .'/admin/',
-                'auth'     => [$this->api_key, $this->api_password]
-            ]);
-
-        }
-
         $this->client = new GuzzleClient(
             array_merge(
                 ['base_uri' => $this->store_url .'/admin/'],
+                ['headers' => [ 'Content-Type' => 'application/json' ]],
                 $this->buildAuthArray()
             )
         );
@@ -129,7 +121,7 @@ class Client
     private function buildAuthArray() : array
     {
         if($this->auth_method === self::AUTH_METHOD_OAUTH) {
-            return ['headers' => ['X-Shopify-Access-Token' => $this->api_token]];
+            return ['headers' => ['X-Shopify-Access-Token' => $this->api_token, 'Content-Type' => 'application/json']];
         }
 
         return ['auth' => [$this->api_key, $this->api_password]];

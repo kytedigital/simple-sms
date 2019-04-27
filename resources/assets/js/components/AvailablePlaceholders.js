@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Card, TextStyle } from '@shopify/polaris';
+import { Card, TextStyle, Banner } from '@shopify/polaris';
 
 export default class AvailablePlaceholders extends Component {
     render() {
@@ -21,8 +21,15 @@ export default class AvailablePlaceholders extends Component {
                         <TextStyle variation="code">{`{shop.currency}`}</TextStyle>&nbsp;
                     </TextStyle>
                     <TextStyle variation="subdued">
-                        <br /><br />
-                        You can use any of these replaceables in your message, but beware every field may have been filled out by every recipient.
+                        <br/>
+                        <br/>
+                        <Banner
+                            status="info"
+                        >
+                            <p>Missing information in your store settings or customer data could result in
+                                recipients receiving placeholders in their messages.</p>
+                        </Banner>
+
                     </TextStyle>
                 </Card.Section>
     }

@@ -25,7 +25,7 @@ class AppController extends Controller
         $request->session()->put('nounce', md5($shopName . time()));
 
         return response()->redirectTo(
-            "https://$shopName.myshopify.com/admin/oauth/authorize?client_id=$clientId&scope=read_customers&redirect_uri=$redirectUrl&state=".session('nounce')
+            "https://$shopName.myshopify.com/admin/oauth/authorize?client_id=$clientId&scope=read_customers,write_customers&redirect_uri=$redirectUrl&state=".session('nounce')
         );
     }
 }
