@@ -27,12 +27,20 @@
                     </svg>
                 </span>
             </div>
-            <div class="Polaris-FooterHelp__Text">
-                You're currently on our {{ $subscription->name }} plan.
+            <div class="Polaris-FooterHelp__Text" style="text-align: center">
+                You're currently on "{{ $subscription->name }}" plan<br/>
                 <a class="Polaris-Link"
                    href="{{ route('subscription', ['shop' => $shop]) }}"
                    data-polaris-unstyled="true">
-                    Click here to change.
+                    Please click here to change your plan
+                </a>
+                <br/>
+
+                <a class="Polaris-Link"
+                   href="https://kyte.kayako.com"
+                   target="_blank"
+                   data-polaris-unstyled="true">
+                    Please click here for general app support
                 </a>
             </div>
         </div>

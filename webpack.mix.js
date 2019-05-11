@@ -13,7 +13,9 @@ require('dotenv').config();
  */
 
 mix.react('resources/assets/js/app.js', 'public/js')
+   .sourceMaps()
    .sass('resources/assets/sass/app.scss', 'public/css');
+
 
 mix.browserSync({
   proxy: 'https://shopify-sms.test'

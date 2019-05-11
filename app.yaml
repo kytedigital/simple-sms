@@ -28,9 +28,11 @@ liveness_check:
 
 env_variables:
   APP_NAME: "shopify-sms-1"
-  APP_DEBUG: true
+  APP_DEBUG: false
   APP_KEY: "base64:q0fxs6z6ngsUSOXA19yPedtTRkpTchoQ3k4vshmF0vI="
   APP_URL: "https://shopify-sms.apps.kyte.digital"
+
+  LOG_CHANNEL: "stack"
 
   BROADCAST_DRIVER: "pusher"
   QUEUE_DRIVER: "database"

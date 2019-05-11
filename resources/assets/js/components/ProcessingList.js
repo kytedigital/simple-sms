@@ -4,52 +4,8 @@ import MessageStatusBadge from "./MessageStatusBadge";
 import ProcessingStats from "./ProcessingStats";
 
 export default class ProcessingList extends Component {
-    constructor(props) {
-        super(props);
-
-        this.state = {
-            processes: [],
-            processed: []
-        };
-    }
-
-    componentWillMount() {
-        this.listenToEchos()
-    }
-
-    listenToEchos() {
-        this.props.channel.listen('MessageDispatchStarted', (details) => { this.startProcess(details) });
-        this.props.channel.listen('MessageDispatchCompleted', (details) => { this.completeProcess(details); })
-    }
-
-    startProcess(details) {
-        this.setState(state => {
-            processes: state.processes.push(details)
-        });
-    }
-
-    completeProcess(details) {
-
-        this.setState(state => {
-            processed: state.processed.push(details)
-        });
-
-        // Wait 2 seconds
-        setTimeout(() => {
-           if(this.state.processes.length < 5) return;
-
-            this.setState(state => {
-                const cleanedProcessList = state.processes.filter((item) => {
-                    return item.message.recipient.id !== details.message.recipient.id;
-                });
-
-                return { processes: cleanedProcessList };
-            });
-        }, 4000);
-    }
-
     getProcessingRecipientIds() {
-        return this.state.processes.map(process => process.message.recipient.id);
+        return this.props.processes.map(process => process.message.recipient.id);
     }
 
     extractProcessingRecipientsFromStatusList() {
@@ -61,7 +17,7 @@ export default class ProcessingList extends Component {
         const processSummary = this.props.sending ? (
             <ProcessingStats
                 queuedItemsCount={this.props.recipients.length}
-                processed={this.state.processed}
+                processed={this.props.processed}
             />
         ) : null;
 

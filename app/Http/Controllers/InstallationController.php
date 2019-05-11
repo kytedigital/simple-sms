@@ -38,7 +38,7 @@ class InstallationController extends Controller
                     ]);
             }
 
-            return response()->redirectTo('https://'.$request->input('shop') . '/admin/apps');
+            return response()->redirectTo('https://'.$request->input('shop') . '/admin/apps/'.config('app.name'));
         } catch(ClientException $exception) {
             Log::debug($exception->getMessage());
             return response()->json(['message' => $exception->getMessage()], 500);

@@ -175,14 +175,14 @@
                                     <li class="pricing-features-item">Bulk promote to all known customers</li>
                                     <li class="pricing-features-item">In-app support and guides access</li>
                                 </ul>
-                                <span class="pricing-price">$25/month</span>
+                                <span class="pricing-price">$13/month</span>
                                 @if(isset($usedMessages) && $usedMessages >= 100)
                                     <p class="subscription-text">
-                                        Can't downgrade to this plan until the end of the
+                                        Can't downgrade to this plan until the end of the billing
                                         period because {{$usedMessages}} messages have been used.
                                     </p>
-                                @elseif(!$subscription || $subscription->name !== 'Simple SMS Lite - Intro')
-                                    <a href="{{route('subscription.make', ['code' => 'Simple SMS Lite - Intro', 'shop' => $shop])}}"
+                                @elseif(!$subscription || $subscription->name !== 'Simple SMS - Intro')
+                                    <a href="{{route('subscription.make', ['code' => 'Simple SMS - Intro', 'shop' => $shop])}}"
                                       class="pricing-button">TRY</a>
                                 @else
                                     <p class="subscription-text">You are on this plan</p>
@@ -197,14 +197,14 @@
                                     <li class="pricing-features-item">Bulk promote to all known customers</li>
                                     <li class="pricing-features-item">In-app support and guides access</li>
                                 </ul>
-                                <span class="pricing-price">$50/month</span>
-                                @if($usedMessages) && $usedMessages >= 500)
+                                <span class="pricing-price">$49/month</span>
+                                @if(isset($usedMessages) && $usedMessages >= 500)
                                     <p class="subscription-text">
-                                        Can't downgrade to this plan until the end of the
+                                        Can't downgrade to this plan until the end of the billing
                                         period because {{$usedMessages}} messages have been used.
                                     </p>
-                                @elseif(!$subscription || $subscription->name !== 'Simple SMS Lite - Moderate')
-                                    <a href="{{route('subscription.make', ['code' => 'Simple SMS Lite - Moderate', 'shop' => $shop])}}"
+                                @elseif(!$subscription || $subscription->name !== 'Simple SMS - Occasional')
+                                    <a href="{{route('subscription.make', ['code' => 'Simple SMS - Occasional', 'shop' => $shop])}}"
                                        class="pricing-button">Start Plan</a>
                                 @else
                                     <p class="subscription-text">You are on this plan</p>
@@ -220,9 +220,9 @@
                                     <li class="pricing-features-item">Bulk promote to all known customers</li>
                                     <li class="pricing-features-item">In-app support and guides access</li>
                                 </ul>
-                                <span class="pricing-price">$100/month</span>
-                                @if(!$subscription ||  $subscription->name !== 'Simple SMS Lite - Regular')
-                                    <a href="{{route('subscription.make', ['code' => 'Simple SMS Lite - Regular', 'shop' => $shop])}}"
+                                <span class="pricing-price">$79/month</span>
+                                @if(!$subscription ||  $subscription->name !== 'Simple SMS - Moderate')
+                                    <a href="{{route('subscription.make', ['code' => 'Simple SMS - Moderate', 'shop' => $shop])}}"
                                        class="pricing-button">Start Plan</a>
                                 @else
                                     <p class="subscription-text">You are on this plan</p>

@@ -20,6 +20,8 @@ const defaultState = {
     message: "",
     customers: [],
     toastText: '',
+    processed: [],
+    processes: [],
     noticeTitle: "",
     fieldErrors: [],
     processNumber: 1,
@@ -52,7 +54,7 @@ export default class Dashboard extends Component {
     }
 
     fetchShopData() {
-        this.setState({ loadingData: true })
+        this.setState({ loadingData: true });
         SendifySdk.getCustomers((customers) => {this.setState({"customers": customers})});
         SendifySdk.getSubscriptionDetails((details) => {this.setState({"subscriptionDetails": details, loadingData: false})});
     }
@@ -80,10 +82,6 @@ export default class Dashboard extends Component {
         return this.messageHasUnicode() ? unicodeSingleMessageLength : singleMessageLength;
     }
 
-    getMaxCharacterLength() {
-        return this.getMaxSingleCharacterLength() * 4;
-    }
-
     calculateMessageLength() {
         return Math.ceil(this.state.message.length / this.getMaxSingleCharacterLength());
     }
@@ -93,12 +91,15 @@ export default class Dashboard extends Component {
     }
 
     listenToEchos() {
-        this.channel.listen('MessageDispatchCompleted', (details) => {this.messageCompleteEcho(details);})
         this.channel.listen('MessageDispatchStarted', (details) => {this.messageStartedEcho(details);})
-        this.channel.listenForWhisper('updates', (details) => { console.debug(details); });
+        this.channel.listen('MessageDispatchCompleted', (details) => {this.messageCompleteEcho(details);})
     }
 
     messageStartedEcho(details) {
+        this.setState(state => {
+            processes: state.processes.push(details)
+        });
+
         this.setState({
             "noticeTitle": "Progress...",
             "notice": details.notice
@@ -106,6 +107,11 @@ export default class Dashboard extends Component {
     }
 
     messageCompleteEcho(details) {
+        this.setState(state => {
+            processed: state.processed.push(details)
+        });
+
+
         let message = details.response.message;
         if(typeof message === 'object') { message = message.reason }
 
@@ -116,6 +122,19 @@ export default class Dashboard extends Component {
         };
 
         this.setState({ dispatchDetails: [...this.state.dispatchDetails, newDetails] });
+
+        // Wait 2 seconds
+        setTimeout(() => {
+            if(this.state.processes.length < 5) return;
+
+            this.setState(state => {
+                const cleanedProcessList = state.processes.filter((item) => {
+                    return item.message.recipient.id !== details.message.recipient.id;
+                });
+
+                return { processes: cleanedProcessList };
+            });
+        }, 4000);
     }
 
     acceptableCustomers() {
@@ -288,6 +307,8 @@ export default class Dashboard extends Component {
                 channel={this.channel}
                 recipients={this.selectedRecipientsWithStatuses()}
                 sending={this.state.status}
+                processes={this.state.processes}
+                processed={this.state.processed}
             />
         ) : (
             <CustomerList
