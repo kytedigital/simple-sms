@@ -38,12 +38,23 @@ class Subscription extends Model
     }
 
     /**
+     * @return int
+     */
+    public function getUsageLimit()
+    {
+        if($this->isTrial()) $this->plan->trial_usage_limit;
+
+        return $this->plan->usage_limit;
+    }
+
+    /**
      * @param $shop
      * @return array
      */
     public function getUsage($shop)
     {
         return [
+            'usage_limit' => $this->getUsageLimit(),
             'period_usage' => $this->getPeriodUsage($shop),
             'period_remaining' => $this->getRemainingCredits($shop),
             'total_usage' => $this->getTotalUsageByShop($shop),
@@ -56,7 +67,18 @@ class Subscription extends Model
      */
     public function getRemainingCredits($shop)
     {
-        return $this->plan->message_limit - $this->getPeriodUsage($shop);
+        return $this->getMessageLimit() - $this->getPeriodUsage($shop);
+    }
+
+    /**
+     * @return bool
+     */
+    public function isTrial()
+    {
+        return
+            Carbon::parse($this->billing_on) > Carbon::now() &&
+            $this->status == 'active' &&
+            $this->trial_ends_on == $this->billing_on;
     }
 
     /**
@@ -67,6 +89,12 @@ class Subscription extends Model
     {
         $periodStart = Carbon::parse($this->billing_on)->toDateTimeString();
         $periodEnd = Carbon::parse($this->billing_on)->addMonth()->toDateTimeString();
+
+        // check if in a trail period
+        if($this->isTrial()) {
+            $periodStart = Carbon::parse($this->billing_on)->subDays($this->trial_days)->toDateTimeString();
+            $periodEnd = Carbon::parse($this->billing_on)->toDateTimeString();
+        }
 
         return MessageLog::where('shop', $shop)
             ->where('created_at', '>', $periodStart)

@@ -2,7 +2,6 @@
 
 use App\Models\Shop;
 use Illuminate\Http\Request;
-use App\Http\Helpers\Shopify;
 
 /*
 |--------------------------------------------------------------------------
@@ -17,15 +16,13 @@ use App\Http\Helpers\Shopify;
 
 
 Route::group(['namespace' => 'Api', 'middleware' => 'auth.token'], function () {
+
     Route::post('dispatch', 'MessageController@send');
     Route::get('dispatch', function() {
         return ['message' => 'You can only post to this endpoint.'];
     });
-    Route::get('message-channels', 'MessageController@availableChannels');
+
     Route::get('subscription', 'SubscriptionController@getSubscription');
-    Route::get('customers', 'CustomersController@browse');
-    Route::get('customers/search', 'CustomersController@search');
-    Route::get('customers/{id}', 'CustomersController@read');
 
     Route::post('customers/redact', function(Request $request) {
         Log::info('Customer redact requested');
@@ -55,8 +52,6 @@ Route::group(['namespace' => 'Api', 'middleware' => 'auth.token'], function () {
 });
 
 Route::group(['namespace' => 'Api'], function () {
-    Route::options('customers', function() { return response(''); });
-    Route::options('dispatch', function() { return response(''); });
     Route::options('health', function() { return response(''); });
     Route::options('subscriptions', function() { return response(''); });
 });

@@ -5,5 +5,4 @@
  * or customize the JavaScript scaffolding to fit your unique needs.
  */
 require('./bootstrap');
-require('./components/Dashboard');
-require('./components/SendifyLoader');
+require('./AppLoader');

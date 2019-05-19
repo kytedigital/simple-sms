@@ -15,11 +15,11 @@
                 and needs to be re-opened to get some information from
                 Shopify. Sometimes this happens when navigating around services outside the app
                 (such as billing and subscriptions).<br><br>
+            </p>
 
             <p class="Polaris-Heading">Please navigate back to Apps and then open this app again in your Shopify admin.</p>
 
-                <em>(we cannot refresh the page from with in this frame)</em>
-            </p>
+            <em>(we cannot refresh the page from with in this frame)</em>
 
         </div>
     </div>

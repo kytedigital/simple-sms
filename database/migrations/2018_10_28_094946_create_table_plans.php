@@ -20,7 +20,10 @@ class CreateTablePlans extends Migration
             $table->string('name');
             $table->text('description');
             $table->float('price');
-            $table->integer('trial_days');
+            $table->integer('trial_days', false, false);
+            $table->integer('usage_limit', false, false);
+            $table->integer('trial_usage_limit', false, false);
+            $table->integer('test_mode', false, false);
             $table->timestamps();
         });
     }

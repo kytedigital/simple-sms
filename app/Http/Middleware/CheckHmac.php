@@ -44,7 +44,6 @@ class CheckHmac
         $parts = [];
 
         foreach ($signature as $key => $value) {
-
             $key = str_replace('%', '%25', $key);
             $key = str_replace('&', '%26', $key);
             $key = str_replace('=', '%3D', $key);
@@ -52,7 +51,6 @@ class CheckHmac
             $value = str_replace('&', '%26', $value);
 
             $parts[] = $key."=".$value;
-
         }
 
         return $request->input('hmac') === hash_hmac('sha256', join('&', $parts), $secret, false);

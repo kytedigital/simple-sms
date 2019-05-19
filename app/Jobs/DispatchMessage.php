@@ -15,7 +15,6 @@ use GuzzleHttp\Exception\ClientException;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use App\Services\BurstSms\Responses\BurstSmsGuzzleResponse;
-use App\Services\BurstSms\Responses\FakeBurstSmsGuzzleResponse;
 
 /**
  * @property array recipient

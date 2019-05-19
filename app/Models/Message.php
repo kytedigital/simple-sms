@@ -39,6 +39,7 @@ class Message
             $message = str_replace('{shop.'.$attribute.'}', $value, $message);
         }
 
+
         // TODO this is inefficient, reverse the logic or implement handle bars.
         foreach($this->recipient as $attribute => $value) {
             if(is_object($value) || is_array($value)) continue;

@@ -26,9 +26,10 @@ class SubscriptionController extends AppController
     private $client;
 
     /**
+     * @param Request $request
      * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
-    public function view()
+    public function view(Request $request)
     {
         $shop = Shop::byName($this->shopName());
         $subscription = $shop->subscription();
@@ -38,7 +39,9 @@ class SubscriptionController extends AppController
         return view('subscription', [
             'shop' => $this->shopName(),
             'subscription' => $subscription,
+            'usage' => $subscription->getUsage($shop),
             'usedMessages' => $usage,
+            'backLink' =>  'https://'.$request->input('shop') . '.myshopify.com/admin/apps/'.config('app.name')
         ]);
     }
 

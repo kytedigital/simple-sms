@@ -18,5 +18,5 @@ mix.react('resources/assets/js/app.js', 'public/js')
 
 
 mix.browserSync({
-  proxy: 'https://shopify-sms.test'
+  proxy: 'https://simple-framework.test'
 });

@@ -15,6 +15,8 @@ class CreateTableMessageLogs extends Migration
     {
         Schema::create('message_logs', function (Blueprint $table) {
             $table->increments('id');
+            $table->integer('shop_id')->default(null)->nullable();
+            $table->string('shop');
             $table->text('recipients');
             $table->text('message');
             $table->string('channel');

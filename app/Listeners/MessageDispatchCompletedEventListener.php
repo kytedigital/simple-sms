@@ -45,7 +45,6 @@ class MessageDispatchCompletedEventListener implements ShouldQueue
         Log::debug(json_encode($event->response->numberOfMessages));
         $log = (array) $event->message;
 
-        var_dump('logg', $log);
         $log['status'] = $event->response->status;
         $log['shop'] = $event->shop;
         $log['channel'] = $event->channel;

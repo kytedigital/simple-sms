@@ -21,7 +21,7 @@ class RedirectIfShopifyAppInstallRequest
      */
     public function handle($request, Closure $next, $guard = null)
     {
-        if(count($request->all()) == 3) {
+        if(count($request->all()) == 4) {
             Log::alert('Shopify Install Requested');
             Log::alert('The request was:'. json_encode($request->all()));
 
@@ -42,7 +42,7 @@ class RedirectIfShopifyAppInstallRequest
         list($redirectUrl, $clientId, $shopName) = [
             config('app.url') .'/token',
             config('services.shopify.app_api_key'),
-            Shopify::stemName($request->get('shop'))
+            $request->get('shop')
         ];
 
         $request->session()->put('nounce', md5($shopName . time()));

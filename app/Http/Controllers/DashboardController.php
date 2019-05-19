@@ -5,57 +5,54 @@ namespace App\Http\Controllers;
 use Carbon\Carbon;
 use App\Models\Shop;
 use App\Models\Token;
-use App\Traits\UsesNames;
+use Illuminate\View\View;
 use Illuminate\Http\Request;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class DashboardController extends AppController
 {
-    use UsesNames;
-
     /**
      * @param Request $request
      * @return \Illuminate\View\View
      * @throws \Exception
      */
-    public function index(Request $request)
+    public function index(Request $request) : View
     {
         try {
-            $shop = Shop::byNameOrFail($this->shopName());
+            $shop = Shop::byNameOrFail($request->get('shop'));
 
-            if(!$shop->token) $this->startInstall($request);
+            if(!$shop || !$shop->token) $this->startInstall($request);
         } catch(ModelNotFoundException $exception) {
             return view('error', ['message' => __('errors.installation')]);
         }
 
-        $freshApiToken = $this->cleanTokens()->generateAndSaveNewApiToken();
+        $freshApiToken = $this->cleanTokens()->generateAndSaveNewApiToken($request->get('shop'));
 
-        if(!$shop->hasSubscription())
-            return view('subscription',
-                ['subscription' => null, 'token' => $freshApiToken, 'shop' => $this->shopName(), 'usedMessages' => 0]);
-
-        return view('dashboard',
-            ['subscription' => $shop->subscription(), 'token' => $freshApiToken, 'shop' => $this->shopName()]);
+        return view('index',
+            [
+                'token' => $freshApiToken,
+                'shopName' => $request->get('shop')
+            ]);
     }
 
     /**
      * Generate and save a random for verifying requests.
      *
+     * @param $shopName
      * @return string
      * @throws \Exception
      */
-    private function generateAndSaveNewApiToken()
+    private function generateAndSaveNewApiToken($shopName) : String
     {
         $code = hash_hmac('sha256', time(), config('services.shopify.app_api_secret'), false);
 
-        $token = (new Token([
+        (new Token([
             'type' => 'app-api',
             'token' => $code,
-            'shop' => $this->shopName(),
-            'expires_at' => (new Carbon('+5 hours'))->toDateTimeString()
-        ]));
+            'shop' => $shopName,
+            'expires_at' => Carbon::now()->addHours(2)->toDateTimeString()
+        ]))->save();
 
-        $token->save();
 
         return $code;
     }
@@ -65,7 +62,7 @@ class DashboardController extends AppController
      *
      * @return $this
      */
-    private function cleanTokens()
+    private function cleanTokens() : DashboardController
     {
         Token::where('expires_at', '<', Carbon::now()->toDateTimeString())->delete();
 

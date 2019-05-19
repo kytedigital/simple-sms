@@ -1,6 +1,6 @@
 @extends('layouts.polaris')
 
-@section('title', 'Shopify SMS')
+@section('title', 'Shopify App')
 
 @section('content')
     <style>
@@ -127,7 +127,7 @@
             <div class="Polaris-Page__Navigation">
                 <nav role="navigation">
                     <a class="Polaris-Breadcrumbs__Breadcrumb"
-                       href="{{ route('dashboard') }}"
+                       onclick="window.top.location.href='{{ $backLink }}'"
                        data-polaris-unstyled="true">
                         <span class="Polaris-Breadcrumbs__Icon">
                             <span class="Polaris-Icon">
@@ -168,14 +168,14 @@
                             <div class="pricing-plan">
                                 <h2 class="pricing-header">Intro</h2>
                                 <ul class="pricing-features">
-                                    <li class="pricing-features-item">7 Day One-time Trial</li>
-                                    <li class="pricing-features-item">100 Messages / month</li>
+                                    <li class="pricing-features-item">14 Day trial inc 30 free message credits</li>
+                                    <li class="pricing-features-item">100 message credits / month (after trial)</li>
                                     <li class="pricing-features-item">Easy to use, integrated SMS system</li>
                                     <li class="pricing-features-item">Easily update individual customers via SMS</li>
                                     <li class="pricing-features-item">Bulk promote to all known customers</li>
-                                    <li class="pricing-features-item">In-app support and guides access</li>
+                                    <li class="pricing-features-item">In-app Support and guides</li>
                                 </ul>
-                                <span class="pricing-price">$13/month</span>
+                                <span class="pricing-price">$9/month</span>
                                 @if(isset($usedMessages) && $usedMessages >= 100)
                                     <p class="subscription-text">
                                         Can't downgrade to this plan until the end of the billing
@@ -189,15 +189,15 @@
                                 @endif
                             </div>
                             <div class="pricing-plan">
-                                <h2 class="pricing-header">Occasional</h2>
+                                <h2 class="pricing-header">Moderate</h2>
                                 <ul class="pricing-features">
-                                    <li class="pricing-features-item">500 messages / month</li>
+                                    <li class="pricing-features-item">500 message credits / month</li>
                                     <li class="pricing-features-item">Easy to use, integrated SMS system</li>
                                     <li class="pricing-features-item">Easily update individual customers via SMS</li>
                                     <li class="pricing-features-item">Bulk promote to all known customers</li>
-                                    <li class="pricing-features-item">In-app support and guides access</li>
+                                    <li class="pricing-features-item">In-app Support and guides</li>
                                 </ul>
-                                <span class="pricing-price">$49/month</span>
+                                <span class="pricing-price">$39/month</span>
                                 @if(isset($usedMessages) && $usedMessages >= 500)
                                     <p class="subscription-text">
                                         Can't downgrade to this plan until the end of the billing
@@ -212,15 +212,15 @@
                             </div>
                             <div class="pricing-plan">
                                 {{--<img src="https://s21.postimg.cc/tpm0cge4n/space-ship.png" alt="" class="pricing-img">--}}
-                                <h2 class="pricing-header">Moderate</h2>
+                                <h2 class="pricing-header">Frequent</h2>
                                 <ul class="pricing-features">
-                                    <li class="pricing-features-item">1000 messages / month</li>
+                                    <li class="pricing-features-item">1000 message credits / month</li>
                                     <li class="pricing-features-item">Easy to use, integrated SMS system</li>
                                     <li class="pricing-features-item">Easily update individual customers via SMS</li>
                                     <li class="pricing-features-item">Bulk promote to all known customers</li>
-                                    <li class="pricing-features-item">In-app support and guides access</li>
+                                    <li class="pricing-features-item">In-app Support and guides</li>
                                 </ul>
-                                <span class="pricing-price">$79/month</span>
+                                <span class="pricing-price">$69/month</span>
                                 @if(!$subscription ||  $subscription->name !== 'Simple SMS - Moderate')
                                     <a href="{{route('subscription.make', ['code' => 'Simple SMS - Moderate', 'shop' => $shop])}}"
                                        class="pricing-button">Start Plan</a>

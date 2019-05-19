@@ -18,7 +18,7 @@ class InstallationController extends Controller
     public function __invoke(ReceiveAccessCodeRequest $request)
     {
         try {
-            $result = (new Guzzle())->post("https://{$request->query('shop')}/admin/oauth/access_token", [
+            $result = (new Guzzle())->post("https://{$request->query('shopUrl')}/admin/oauth/access_token", [
                 'form_params' => [
                     "code" => $request->query('code'),
                     'client_id' => config('services.shopify.app_api_key'),
@@ -28,17 +28,21 @@ class InstallationController extends Controller
 
             $response = json_decode($result->getBody()->getContents());
 
-            $shop = Shop::byName(Shopify::stemName($request->input('shop')))
-                         ->saveShopifyToken($response->access_token);
+            $shop = Shop::withTrashed()->where('name', $request->input('shop'))->first();
 
-            if(!$shop->getAttribute('burst_sms_client_id') && !$shop->setUpClientAccount()) {
-                return view('error')->with(
-                    [
-                        'message' => 'Count not set up your SMS account. Please contact support for assistance.'
-                    ]);
+            if(!$shop) {
+                $shop = new Shop;
+
+                $shop->name = $request->input('shop');
+                $shop->token = $response->access_token;
+
+                $shop->save();
             }
 
-            return response()->redirectTo('https://'.$request->input('shop') . '/admin/apps/'.config('app.name'));
+            // Could be a reinstall
+            $shop->restore();
+
+            return response()->redirectTo('https://'.$request->input('shopUrl') . '/admin/apps/'.config('app.name'));
         } catch(ClientException $exception) {
             Log::debug($exception->getMessage());
             return response()->json(['message' => $exception->getMessage()], 500);

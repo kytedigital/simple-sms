@@ -29,15 +29,9 @@ return [
         'secret' => env('SPARKPOST_SECRET'),
     ],
 
-    'stripe' => [
-        'model' => App\User::class,
-        'key' => env('STRIPE_KEY'),
-        'secret' => env('STRIPE_SECRET'),
-    ],
-
     'shopify' => [
-        'app_api_key' => env('APP_API_KEY'),
-        'app_api_secret' => env('APP_API_SECRET'),
+        'app_api_key' => env('SHOPIFY_APP_API_KEY'),
+        'app_api_secret' => env('SHOPIFY_APP_API_SECRET'),
     ],
 
     'burstsms' => [
@@ -51,12 +45,9 @@ return [
         'data_center' => env('MAILCHIMP_DATA_CENTER'),
         'api_user' => env('MAILCHIMP_API_USER'),
         'api_key' => env('MAILCHIMP_API_KEY'),
-        'mens_mailing_list' => env('MAILCHIMP_ACADEMY_MAILINGLIST'),
-        'rookie_mailing_list' => env('MAILCHIMP_ROOKIE_MAILINGLIST')
     ],
 
-    'messaging' => [
-        'channels' => explode(',', env('MESSAGING_CHANNELS')),
+    'simple' => [
         'api_base' => env('API_BASE')
     ]
 

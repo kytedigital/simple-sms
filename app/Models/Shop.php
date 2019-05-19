@@ -7,30 +7,17 @@ use App\Http\Helpers\Shopify;
 use App\Services\Shopify\Client;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Database\Eloquent\Model;
-use App\Http\Helpers\BurstSubAccountHelper;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Shop extends Model
 {
-    /**
-     * Extractable Shop Properties
-     */
-    const MESSAGE_PROPERTIES = [
-        'name',
-        'email',
-        'domain',
-        'province',
-        'country',
-        'city',
-        'phone',
-        'currency',
-        'address1',
-        'zip'
-    ];
+    use SoftDeletes;
 
     private $client;
 
     protected $fillable = [
         'name',
+        'shop_id',
         'token',
         'burst_sms_client_id',
         'burst_sms_client_api_token',
@@ -50,7 +37,7 @@ class Shop extends Model
      * @param $name
      * @return mixed
      */
-    public static function byName($name)
+    public static function byName($name) : Shop
     {
         return self::firstOrCreate(['name' => $name]);
     }
@@ -59,7 +46,7 @@ class Shop extends Model
      * @param $token
      * @return $this
      */
-    public function saveShopifyToken($token)
+    public function saveShopifyToken(string $token) : Shop
     {
         $this->token = $token;
         $this->save();
@@ -70,7 +57,7 @@ class Shop extends Model
     /**
      * Get the stores subscription.
      */
-    public function hasSubscription()
+    public function hasSubscription() : bool
     {
         if(!$charges = $this->charges()) return null;
 
@@ -142,24 +129,8 @@ class Shop extends Model
     {
         if(isset($this->client)) return $this->client;
 
-        return $this->client = $client = (new Client)->oauth($this->getAttribute('token'))
+        return $this->client = (new Client)->oauth($this->getAttribute('token'))
                                         ->setStore(Shopify::nameToUrl($this->getAttribute('name')))
                                         ->getClient();
-    }
-
-    /**
-     * @return \Illuminate\Support\Collection
-     */
-    public function messageProperties()
-    {
-        return collect($this->shopDetails())->only(self::MESSAGE_PROPERTIES);
-    }
-
-    /**
-     * @return bool
-     */
-    public function setUpClientAccount()
-    {
-        return BurstSubAccountHelper::findOrSetupSmsClientAccount($this);
     }
 }

@@ -11,7 +11,8 @@
 |
 */
 
-Route::group(['middleware' => ['checkShop', 'checkHmac', 'redirectShopifyAppInstalls']], function () {
+// Don't change the middleware order.
+Route::group([ 'middleware' => ['checkHmac', 'checkShop', 'redirectShopifyAppInstalls' ]], function () {
     Route::get('/', 'DashboardController@index')->name('dashboard');
     Route::get('subscription', 'SubscriptionController@view')->name('subscription');
     Route::get('create-subscription', 'SubscriptionController@createSubscription')

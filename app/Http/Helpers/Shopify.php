@@ -23,6 +23,6 @@ class Shopify
      */
     public static function nameToUrl($name) : string
     {
-        return $name . '.myshopify.com';
+        return self::stemName($name) . '.myshopify.com';
     }
 }

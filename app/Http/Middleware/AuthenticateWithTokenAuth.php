@@ -7,6 +7,7 @@ use Exception;
 use App\Models\Token;
 use RuntimeException;
 use Illuminate\Http\Request;
+use App\Http\Helpers\Shopify;
 
 class AuthenticateWithTokenAuth
 {
@@ -30,7 +31,7 @@ class AuthenticateWithTokenAuth
             return response()->json(['message' => "Token is incorrect or the shop is not installed."], 401);
         }
 
-        $request->merge(['shop' => $shop]);
+        $request->merge(['shop' => Shopify::stemName($shop), 'shopUrl' => Shopify::nameToUrl($shop)]);
 
         return $next($request);
     }

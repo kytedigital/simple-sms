@@ -1,6 +1,6 @@
-@extends('layouts.polaris-error')
+@extends('layouts.polaris')
 
-@section('title', 'App Error')
+@section('title', config('app.title'))
 
 @section('content')
     <div class="Polaris-Page">

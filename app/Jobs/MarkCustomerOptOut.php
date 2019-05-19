@@ -2,22 +2,17 @@
 
 namespace App\Jobs;
 
-use App\Http\Helpers\Shopify;
 use App\Models\Shop;
-use App\Models\Message;
 use Carbon\Carbon;
+use App\Http\Helpers\Shopify;
 use Illuminate\Bus\Queueable;
 use App\Services\Shopify\Client;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
-use App\Events\MessageDispatchStarted;
 use Illuminate\Queue\InteractsWithQueue;
-use App\Events\MessageDispatchCompleted;
 use GuzzleHttp\Exception\ClientException;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use App\Services\BurstSms\Responses\BurstSmsGuzzleResponse;
-use App\Services\BurstSms\Responses\FakeBurstSmsGuzzleResponse;
 
 /**
  * @property array recipient
