@@ -2,6 +2,7 @@
 
 use App\Models\Shop;
 use Illuminate\Http\Request;
+use App\Http\Helpers\Shopify;
 
 /*
 |--------------------------------------------------------------------------
@@ -13,45 +14,14 @@ use Illuminate\Http\Request;
 | is assigned the "api" middleware group. Enjoy building your ApiService!
 |
 */
-
-
 Route::group(['namespace' => 'Api', 'middleware' => 'auth.token'], function () {
-
-    Route::post('dispatch', 'MessageController@send');
-    Route::get('dispatch', function() {
-        return ['message' => 'You can only post to this endpoint.'];
-    });
-
-    Route::get('subscription', 'SubscriptionController@getSubscription');
-
-    Route::post('customers/redact', function(Request $request) {
-        Log::info('Customer redact requested');
-        Log::debug($request->all());
-       return $request->all();
-    });
-
-    Route::post('customers/delete', function(Request $request) {
-        Log::info('Customer delete requested');
-        Log::debug($request->all());
-        return $request->all();
-    });
-
-
-    Route::post('shop/delete', function(Request $request) {
-
-        Log::info('Shop delete requested');
-        Log::debug($request->all());
-
-        return Shop::where(
-            'name',
-            '=',
-            Shopify::stemName($request->get('shop_domain')))
-            ->delete();
-    });
-
+    Route::apiResource('subscription', 'SubscriptionController')->only('show');
+    Route::apiResource('plans', 'PlansController')->only('index');
 });
 
 Route::group(['namespace' => 'Api'], function () {
-    Route::options('health', function() { return response(''); });
-    Route::options('subscriptions', function() { return response(''); });
+    Route::get('health', 'HealthController');
+    Route::post('lifecycle/shopDelete', 'LifecycleWebhookController@shopDelete');
+    Route::post('lifecycle/customersRedact', 'LifecycleWebhookController@customersRedact');
+    Route::post('lifecycle/customersDelete', 'LifecycleWebhookController@customersDelete');
 });

@@ -1,20 +1,17 @@
 <?php
-namespace Dlapi\Http\Controllers;
+
+namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use Symfony\Component\HttpFoundation\Response;
 
 class HealthController extends Controller
 {
     /**
-     * @return \Illuminate\Http\JsonResponse
+     * @return array
      */
-    public function getHeartBeat()
+    public function __invoke()
     {
-        return response()->json([
-            "status" => "Heartbeat OK",
-            "modules" => [
-                "msapi" => 200,
-            ]
-        ]);
+        return ['status' => Response::HTTP_OK];
     }
 }

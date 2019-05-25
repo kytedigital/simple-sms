@@ -1,12 +1,18 @@
 import React, { Component } from 'react';
-import { AppProvider, Layout, Card, SkeletonPage, SkeletonBodyText, SkeletonDisplayText, TextContainer } from '@shopify/polaris';
+import {
+    AppProvider,
+    Layout,
+    Card,
+    SkeletonPage,
+    SkeletonBodyText,
+    SkeletonDisplayText,
+    TextContainer
+} from '@shopify/polaris';
 
 export default class LoadingPage extends Component {
-
     render() {
-
         return <AppProvider>
-                <SkeletonPage>
+                <SkeletonPage fullWidth>
                     <Layout>
                         <Layout.Section secondary>
                             <Card>

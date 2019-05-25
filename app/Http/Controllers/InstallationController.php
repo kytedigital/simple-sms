@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Shop;
-use App\Http\Helpers\Shopify;
 use GuzzleHttp\Client as Guzzle;
 use Illuminate\Support\Facades\Log;
 use GuzzleHttp\Exception\ClientException;
