@@ -15,18 +15,16 @@ class SubscriptionController extends Controller
      * @param ShowSubscriptionRequest $request
      * @return array
      */
-    public function show(ShowSubscriptionRequest $request) : array
+    public function show(ShowSubscriptionRequest $request)
     {
-        $subscription = Shop::where('name', $request->input('shop'))->first()->subscription();
-
-        if(!$subscription) {
-            return response()->json(['message' => 'Subscription not found'], Response::HTTP_NOT_FOUND);
-        }
+        $subscription = Shop::where('name', $request->input('shop'))
+                            ->first()
+                            ->subscription();
 
         return [
-            'subscription' => (array) $subscription->getAttributes(),
-            'plan' => (array) $subscription->plan->getAttributes(),
-            'usage' => $subscription->getUsage($request->input('shop'))
+            'subscription' => $subscription ? (array) $subscription->getAttributes() : null,
+            'plan' => (array) $subscription ? $subscription->plan->getAttributes() : null,
+            'usage' => $subscription ? $subscription->getUsage($request->input('shop')) : null
         ];
     }
 }
