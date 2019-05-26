@@ -22,9 +22,9 @@ class SubscriptionController extends Controller
                             ->subscription();
 
         return [
-            'subscription' => $subscription ? (array) $subscription->getAttributes() : null,
-            'plan' => (array) $subscription ? $subscription->plan->getAttributes() : null,
-            'usage' => $subscription ? $subscription->getUsage($request->input('shop')) : null
-        ];
+                'active' => $subscription ? (array) $subscription->getAttributes() : null,
+                'plan' => (array) $subscription ? $subscription->plan->getAttributes() : null,
+                'usage' => $subscription ? $subscription->getUsage($request->input('shop')) : null
+            ];
     }
 }

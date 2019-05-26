@@ -14,13 +14,10 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    @if(isset($shop))<meta name="shop" content="{{ $shop }}">@endif
-    @if(isset($token))<meta name="api-token" content="{{ $token }}">@endif
 
     <title>@yield('title')</title>
 
     <link rel="stylesheet" href="https://sdks.shopifycdn.com/polaris/3.15.0/polaris.min.css" />
-    <script src="https://wchat.freshchat.com/js/widget.js"></script>
 
     <style>body { background-color: #f4f6f8; }</style>
 </head>
@@ -28,11 +25,5 @@
     <div class="container">
         @yield('content')
     </div>
-    <script>
-        window.fcWidget.init({
-            token: "7f4eb6b4-b637-4fa9-b7f1-135d4707065d",
-            host: "https://wchat.freshchat.com"
-        });
-    </script>
 </body>
 </html>

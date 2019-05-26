@@ -5,4 +5,4 @@
  * or customize the JavaScript scaffolding to fit your unique needs.
  */
 require('./bootstrap');
-require('./AppLoader');
+require('./SimpleApp');

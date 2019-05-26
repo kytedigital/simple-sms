@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { Context } from '../../context';
 import { Page, Layout, PageActions } from '@shopify/polaris';
 import ConfirmationModel from "../../components/Modals/ConfirmationModal";
 import BannerNotice from "../../components/Notices/BannerNotice";
@@ -11,7 +12,7 @@ const defaultState = {
     showConfirmation: false
 };
 
-export default class Index extends Component {
+class Index extends Component {
     constructor(props) {
         super(props);
 
@@ -252,3 +253,11 @@ export default class Index extends Component {
                 </Page>;
     }
 }
+
+Index.contextType = Context;
+
+export default props => (
+    <Context.Consumer>
+        {state => <Index context={state} />}
+    </Context.Consumer>
+);

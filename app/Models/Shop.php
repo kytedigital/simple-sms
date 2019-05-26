@@ -133,4 +133,20 @@ class Shop extends Model
                                         ->setStore(Shopify::nameToUrl($this->getAttribute('name')))
                                         ->getClient();
     }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function purchases()
+    {
+        return $this->hasMany('App\Models\Purchase', 'shop', 'name');
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function usages()
+    {
+        return $this->hasMany('App\Models\Usages', 'shop', 'name');
+    }
 }

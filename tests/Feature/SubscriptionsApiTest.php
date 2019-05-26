@@ -2,7 +2,9 @@
 
 namespace Tests\Feature;
 
-class SubscriptionsApiTest extends ApiTestBase
+use Tests\TestCase;
+
+class SubscriptionsApiTest extends TestCase
 {
     /**
      * A basic feature test example.

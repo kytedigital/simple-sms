@@ -41,7 +41,7 @@ class SubscriptionController extends AppController
             'subscription' => $subscription,
             'usage' => $subscription->getUsage($shop),
             'usedMessages' => $usage,
-            'backLink' =>  'https://'.$request->input('shop') . '.myshopify.com/admin/apps/'.config('app.name')
+            'backLink' =>  'https://'.$request->input('shopUrl') . '.myshopify.com/admin/apps/'.config('app.name')
         ]);
     }
 

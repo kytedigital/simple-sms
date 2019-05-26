@@ -15,18 +15,7 @@
         </div>
     @endif
 
-    <div id="app"></div>
+    <div id="App"></div>
 
     <script type="text/javascript" src="js/app.js"></script>
-
-    <script>
-        if(AppLoader !== undefined) {
-            AppLoader.bind({
-                'shop': '{{ $shopName }}',
-                'token': '{{ $token }}',
-                'signature': '{{ csrf_token() }}',
-                'apiBase': '{{ config('services.simple.api_base') }}'
-            }, 'app');
-        }
-    </script>
 @endsection

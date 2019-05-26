@@ -48,8 +48,6 @@ import Echo from 'laravel-echo'
 
 window.Pusher = require('pusher-js');
 
-let apiToken = document.head.querySelector('meta[name="api-token"]');
-
 window.Echo = new Echo({
     broadcaster: 'pusher',
     key: 'a8b8e4a570934dd3bc44',
@@ -57,4 +55,4 @@ window.Echo = new Echo({
     encrypted: true
 });
 
-window.Echo.connector.pusher.config.auth.headers['Authorization'] = 'Bearer '+apiToken.content;
+window.Echo.connector.pusher.config.auth.headers['Authorization'] = 'Bearer '+AppContext.token;

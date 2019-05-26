@@ -1,10 +1,10 @@
 import { combineReducers } from 'redux'
-import recipients from './recipients'
-import processes from './processes'
-import messages from './messages'
+import subscription from './subscription'
+import global from './global'
+import plans from './plans'
 
 export default combineReducers({
-    recipients,
-    processes,
-    messages
+    global,
+    subscription,
+    plans,
 });

@@ -2,14 +2,23 @@ import * as axios from "axios";
 
 let maxBatches = 4;
 
-export default class SimpleSDK {
+class SimpleSDK {
     constructor(apiBase, apiToken) {
         this.apiBase = apiBase;
         this.apiToken = apiToken;
     }
 
-    static version () {
-        return '0.1';
+    subscription(callback, errorCallback) {
+        return this.call('subscription/me', function(response) {
+            return callback(response.data);
+        }, errorCallback);
+    }
+
+    plans(callback) {
+        return this.call('plans', function(response) {
+            console.log('RESPONSE', response);
+            return callback(response.data);
+        });
     }
 
     /**
@@ -21,14 +30,14 @@ export default class SimpleSDK {
      * @param customers
      * @returns {Promise<any>}
      */
-    static async getShopifyData(resource, callback, batchNumber = 1, customers = []) {
+    async getShopifyData(resource, callback, batchNumber = 1, customers = []) {
         const customersPerCycle = 250;
 
         return this.call(resource+'?limit='+customersPerCycle+'&page='+batchNumber, function(response)
-            {
-                return response.data.items;
+        {
+            return response.data.items;
 
-            }).then(function(batch) {
+        }).then(function(batch) {
                 customers.push(...batch);
 
                 if(batchNumber >= maxBatches || batch.length < customersPerCycle) {
@@ -40,19 +49,7 @@ export default class SimpleSDK {
         );
     }
 
-    static subscription(callback) {
-        return this.call('subscription', function(response) {
-            return callback(response.data.item);
-        });
-    }
-
-    static plans(callback) {
-        return this.call('plans', function(response) {
-            return callback(response.data.item);
-        });
-    }
-
-    static async call(url, callback, method = 'GET', data = {}) {
+    async call(url, callback, errorCallBack = null, method = 'GET', data = {} ) {
         const options = {
             method: method,
             url: url,
@@ -69,10 +66,15 @@ export default class SimpleSDK {
                 .then((response) => {
                     return callback(response);
                 });
-        } catch(e) {
+        } catch(error) {
+            errorCallBack();
 
             // Handle the promise rejection TODO: Didn't work
-            console.log(e);
+            console.log(error);
+
+            throw Error(error.statusText);
         }
     }
 }
+
+export default SimpleSDK = new SimpleSDK(AppContext.apiBase, AppContext.token);
