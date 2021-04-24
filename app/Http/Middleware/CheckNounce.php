@@ -18,6 +18,7 @@ class CheckNounce
     public function handle($request, Closure $next, $guard = null)
     {
         if(($request->session()->get('nounce') !== $request->query('state'))) {
+            Log::alert('nounce in session was: '.$request->session()->get('nounce'));
             Log::alert('An nounce verification failed');
             Log::alert('The request was:'. json_encode($request->all()));
             Log::alert('The client IP was:'. json_encode($_SERVER['REMOTE_ADDR']));
