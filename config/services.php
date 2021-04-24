@@ -29,6 +29,11 @@ return [
         'secret' => env('SPARKPOST_SECRET'),
     ],
 
+//    'shopify' => [
+//        'app_api_key' => env('SHOPIFY_APP_API_KEY'),
+//        'app_api_secret' => env('SHOPIFY_APP_API_SECRET'),
+//    ],
+
     'shopify' => [
         'app_api_key' => env('SHOPIFY_APP_API_KEY'),
         'app_api_secret' => env('SHOPIFY_APP_API_SECRET'),
