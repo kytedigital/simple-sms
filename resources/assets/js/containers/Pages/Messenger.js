@@ -1,9 +1,11 @@
 import React, { Component } from 'react';
 import { Context } from '../../context';
-import { Page, Layout, PageActions } from '@shopify/polaris';
+import {Card, Layout, PageActions} from '@shopify/polaris';
 import ConfirmationModel from "../../components/Modals/ConfirmationModal";
 import BannerNotice from "../../components/Notices/BannerNotice";
 import LoadingPage from "../../components/Loaders/LoadingPage";
+import PageWrapper from "../../components/PageWrapper/PageWrapper";
+import CustomerSearch from "../../containers/search/customerSearch";
 
 const defaultState = {
     loading: true,
@@ -12,7 +14,7 @@ const defaultState = {
     showConfirmation: false
 };
 
-class Index extends Component {
+class Messenger extends Component {
     constructor(props) {
         super(props);
 
@@ -24,26 +26,20 @@ class Index extends Component {
     }
 
     componentWillMount() {
-        this.setEcho();
-        this.listenToEchos();
         this.fetchData();
+        this.setUpEchos();
+    }
+
+    setUpEchos()
+    {
+        this.props.context.channel.listen('MessageDispatchStarted', (details) => {this.processStartedEcho(details);});
+        this.props.context.channel.listen('MessageDispatchCompleted', (details) => {this.processCompleteEcho(details);})
     }
 
     fetchData() {
-        this.setState({ loading: true });
-    }
+        this.setState({ loading: false });
 
-    isLoading() {
-        return this.state.loading
-    }
-
-    setEcho() {
-        this.channel = window.Echo.private('shop.'+this.props.shop);
-    }
-
-    listenToEchos() {
-        this.channel.listen('MessageDispatchStarted', (details) => {this.processStartedEcho(details);});
-        this.channel.listen('MessageDispatchCompleted', (details) => {this.processCompleteEcho(details);})
+        // Get any page specific Data.
     }
 
     processStartedEcho(details) {
@@ -62,7 +58,6 @@ class Index extends Component {
         this.setState(state => {
             processed: state.processed.push(details)
         });
-
 
         let message = details.response.message;
         if(typeof message === 'object') { message = message.reason }
@@ -135,7 +130,7 @@ class Index extends Component {
             'bannerStatus': "success"
         });
 
-        SImpleSDK.sendMessage(this.state.message, this.selectedRecipients(), (response) => {
+        SimpleSDK.sendMessage(this.state.message, this.selectedRecipients(), (response) => {
             this.setState({"status": 1, "statusMessage": "Queued"});
         });
     };
@@ -222,42 +217,32 @@ class Index extends Component {
             </Layout.Section>
         ) : null;
 
-        const pageActions = <PageActions
-            primaryAction={this.getPrimaryAction()}
-        />;
+        const pageMarkup = this.state.loading ? (
+            <Layout>
+                {bannerNotice}
+                <Layout.Section oneHalf>
+                    <Card>
+                        <CustomerSearch />
+                    </Card>
+                </Layout.Section>
+                <Layout.Section oneHalf>
 
-        const pageMarkup = this.isLoading() ? (
-                <Layout>
-                    {bannerNotice}
-                    <Layout.Section oneHalf>
-
-                    </Layout.Section>
-                    <Layout.Section oneHalf>
-
-                    </Layout.Section>
-                </Layout>
+                </Layout.Section>
+            </Layout>
         ) : <LoadingPage />;
 
-
-        return <Page title="Kyte App Framework"
-                     fullWidth
-                     primaryAction={this.getPrimaryAction()}
-                     // secondaryActions={[{
-                     //     content: 'Open Message Logs',
-                     //     onAction: () => this.props.history.push('/log')
-                     // }]}
-                >
-                    {pageMarkup}
-                    {confirmationModel}
-                    {pageActions}
-                </Page>;
+        return <PageWrapper primaryAction={this.getPrimaryAction()} title="Messenger">
+            {pageMarkup}
+            {confirmationModel}
+            <PageActions primaryAction={this.getPrimaryAction()} />
+        </PageWrapper>;
     }
 }
 
-Index.contextType = Context;
+Messenger.contextType = Context;
 
 export default props => (
     <Context.Consumer>
-        {state => <Index context={state} />}
+        {state => <Messenger {...props} context={state} />}
     </Context.Consumer>
 );

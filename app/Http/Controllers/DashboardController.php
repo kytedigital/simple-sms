@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use JavaScript;
 use App\Models\Shop;
-use Illuminate\View\View;
 use Illuminate\Http\Request;
 use App\Traits\StartsInstalls;
 use App\Traits\ManagesApiTokens;
@@ -15,14 +14,14 @@ class DashboardController extends AppController
 
     /**
      * @param Request $request
-     * @return \Illuminate\View\View
+     * @return Response
      * @throws \Exception
      */
-    public function index(Request $request) : View
+    public function index(Request $request)
     {
-        $shop = Shop::byNameOrFail($request->get('shop'));
+        $shop = Shop::where('name', $request->get('shop'))->first();
 
-        if(!$shop || !$shop->token) $this->startInstall($request);
+        if(!$shop || !$shop->token) return $this->startInstall($request);
 
         JavaScript::put([
             'apiBase' => config('services.simple.api_base'),

@@ -15,8 +15,9 @@ use App\Http\Helpers\Shopify;
 |
 */
 Route::group(['namespace' => 'Api', 'middleware' => 'auth.token'], function () {
-    Route::apiResource('subscription', 'SubscriptionController')->only('show');
-    Route::apiResource('plans', 'PlansController')->only('index');
+    Route::apiResource('subscriptions', 'SubscriptionController')->only('show');
+    Route::apiResource('purchases', 'PurchaseController')->only('index');
+    Route::apiResource('plans', 'PlanController')->only('index');
 });
 
 Route::group(['namespace' => 'Api'], function () {

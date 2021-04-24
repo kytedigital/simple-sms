@@ -1,8 +1,10 @@
 import React, { Component } from 'react';
 import { Context } from '../../context';
-import { Page, Layout, Card, TextStyle, PageActions } from '@shopify/polaris';
+import { Layout, PageActions } from '@shopify/polaris';
+import LoadingPage from "../../components/Loaders/LoadingPage";
+import PageWrapper from "../../components/PageWrapper/PageWrapper";
 
-class Plans extends Component {
+class Plan extends Component {
     constructor(props) {
         super(props);
 
@@ -17,17 +19,45 @@ class Plans extends Component {
         this.setState({ loading: true });
     }
 
+    readyToExecute() {
+        return true;
+    }
+
+    execute() {
+        // Do primary action.
+    }
+
+    getPrimaryAction() {
+        return {
+            content: 'Change Plan',
+            onAction: this.execute,
+            disabled: !this.readyToExecute(),
+        }
+    }
+
     render() {
-        return (
-          <h1>Plans</h1>
-        );
+        const pageMarkup = this.state.loading ? (
+            <Layout>
+                <Layout.Section oneHalf>
+
+                </Layout.Section>
+                <Layout.Section oneHalf>
+
+                </Layout.Section>
+            </Layout>
+        ) : <LoadingPage />;
+
+        return <PageWrapper primaryAction={this.getPrimaryAction()} title="Plans">
+            {pageMarkup}
+            <PageActions primaryAction={this.getPrimaryAction()} />
+        </PageWrapper>;
     }
 }
 
-Plans.contextType = Context;
+Plan.contextType = Context;
 
 export default props => (
     <Context.Consumer>
-        {state => <Plans context={state} />}
+        {state => <Plan {...props} context={state} />}
     </Context.Consumer>
 );

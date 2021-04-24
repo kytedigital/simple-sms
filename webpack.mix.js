@@ -18,5 +18,6 @@ mix.react('resources/assets/js/app.js', 'public/js')
 
 
 mix.browserSync({
-  proxy: 'https://simple-framework.test?shop=sms-dervelopment-2'
+  proxy: 'https://simple-sms/?shop=sms-dervelopment-2',
+  browser: "chrome"
 });

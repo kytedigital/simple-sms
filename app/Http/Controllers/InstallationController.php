@@ -30,16 +30,16 @@ class InstallationController extends Controller
             $shop = Shop::withTrashed()->where('name', $request->input('shop'))->first();
 
             if(!$shop) {
+                // New Install
                 $shop = new Shop;
-
                 $shop->name = $request->input('shop');
                 $shop->token = $response->access_token;
-
+                $shop->shop_id = $shop->fullDetails()->id;
                 $shop->save();
+            } elseif($shop->fullDetails()->id === $shop->shop_id) {
+                // Reinstall
+                $shop->restore();
             }
-
-            // Could be a reinstall
-            $shop->restore();
 
             return response()->redirectTo('https://'.$request->input('shopUrl') . '/admin/apps/'.config('app.name'));
         } catch(ClientException $exception) {

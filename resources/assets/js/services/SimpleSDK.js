@@ -9,14 +9,19 @@ class SimpleSDK {
     }
 
     subscription(callback, errorCallback) {
-        return this.call('subscription/me', function(response) {
+        return this.call('subscriptions/me',  function(response) {
             return callback(response.data);
         }, errorCallback);
     }
 
     plans(callback) {
         return this.call('plans', function(response) {
-            console.log('RESPONSE', response);
+            return callback(response.data);
+        });
+    }
+
+    purchases(callback) {
+        return this.call('purchases', function(response) {
             return callback(response.data);
         });
     }

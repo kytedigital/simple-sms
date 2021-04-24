@@ -28,15 +28,6 @@ class Shop extends Model
      * @param $name
      * @return mixed
      */
-    public static function byNameOrFail($name)
-    {
-        return self::where(['name' => $name])->firstOrFail();
-    }
-
-    /**
-     * @param $name
-     * @return mixed
-     */
     public static function byName($name) : Shop
     {
         return self::firstOrCreate(['name' => $name]);
@@ -111,7 +102,7 @@ class Shop extends Model
      *
      * @return \Illuminate\Support\Collection
      */
-    public function shopDetails()
+    public function fullDetails()
     {
         $charges = json_decode(
             $this->client()

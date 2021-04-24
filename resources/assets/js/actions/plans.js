@@ -9,9 +9,9 @@ export const fetchPlansStart = () => ({
     type: FETCH_PLANS_START
 });
 
-export const storePlans = subscription => ({
+export const storePlans = plans => ({
     type: STORE_PLANS,
-    payload: subscription
+    payload: plans
 });
 
 export const fetchPlansFailure = error => ({
@@ -20,8 +20,6 @@ export const fetchPlansFailure = error => ({
 });
 
 export function fetchPlans() {
-    console.log('Running Fetch Plans');
-
     Store.dispatch(fetchPlansStart());
 
     SimpleSDK.plans(

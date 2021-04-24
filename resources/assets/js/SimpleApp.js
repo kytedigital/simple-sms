@@ -1,39 +1,57 @@
 import React, { Component } from 'react';
-import { BrowserRouter as Router, Route } from "react-router-dom";
+import { HashRouter, Route } from "react-router-dom";
+import { ConnectedRouter } from 'connected-react-router'
 import { Context } from './context';
 import { Provider } from 'react-redux';
-import { AppProvider } from '@shopify/polaris';
-import { Store } from './store'
-import Index from "./containers/Pages/Index";
-import Plans from "./containers/Pages/Plans";
-    // import bridge from './AppBridge';
 import * as ReactDOM from "react-dom";
+import { Store, history } from './store'
+import { AppProvider } from '@shopify/polaris';
+import Automation from "./containers/Pages/Automation";
+import Messenger from "./containers/Pages/Messenger";
+import History from "./containers/Pages/History";
+import Balance from "./containers/Pages/Balance";
+import Plans from "./containers/Pages/Plans";
 import { fetchSubscription } from './actions/subscription';
 import { fetchPlans } from './actions/plans';
-import * as GlobalActions from './actions/global';
+import { fetchPurchases } from './actions/purchases';
+import * as GlobalActions from './actions/global'
 
 console.log('App Context', AppContext);
 
 export default class SimpleApp extends Component {
     componentDidMount() {
+        this.mountData();
+    }
+
+    async mountData() {
         GlobalActions.isLoading();
+        await this.populate();
+        GlobalActions.isNotLoading();
+    }
+
+    async populate() {
         fetchSubscription();
         fetchPlans(); // TODO : Move to plans page.
-        GlobalActions.isNotLoading();
+        fetchPurchases(); // TODO : Move to plans page.
     }
 
     render() {
         return (
             <Context.Provider value={{...AppContext}}>
                 <Provider store={Store}>
-                    <div style={{ backgroundColor: '#f4f6f8' }}>
-                        <AppProvider>
-                            <Router>
-                                <Route exact path="/" component={Index} />
-                                <Route path="/log" component={Plans} />
-                            </Router>
-                        </AppProvider>
-                    </div>
+                    <ConnectedRouter history={history}>
+                        <div style={{backgroundColor: '#f4f6f8' }}>
+                            <AppProvider>
+                                <HashRouter>
+                                    <Route exact path="/" component={Automation} />
+                                    <Route exact path="/messenger" component={Messenger} />
+                                    <Route exact path="/balance" component={Balance} />
+                                    <Route exact path="/history" component={History} />
+                                    <Route exact path="/plans" component={Plans} />
+                                </HashRouter>
+                            </AppProvider>
+                        </div>
+                    </ConnectedRouter>
                 </Provider>
             </Context.Provider>
         );
@@ -42,8 +60,6 @@ export default class SimpleApp extends Component {
 
 document.addEventListener("DOMContentLoaded", () => {
     if (document.getElementById('App')) {
-        ReactDOM.render(
-            <SimpleApp />,
-            document.getElementById('App'));
+        ReactDOM.render(<SimpleApp />, document.getElementById('App'));
     }
 });

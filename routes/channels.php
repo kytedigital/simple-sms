@@ -13,5 +13,6 @@
 use Illuminate\Http\Request;
 
 Broadcast::channel('shop.{shop}', function ($user, $shop) {
+    dd(app(Request::class)->get('shop'), $shop);
     return $shop === app(Request::class)->get('shop');
 });

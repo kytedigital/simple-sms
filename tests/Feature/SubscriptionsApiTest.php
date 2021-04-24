@@ -17,7 +17,7 @@ class SubscriptionsApiTest extends TestCase
 
         $response->assertStatus(200);
         $response->assertJsonStructure([
-            'subscription',
+            'active',
             'plan',
             'usage',
         ]);

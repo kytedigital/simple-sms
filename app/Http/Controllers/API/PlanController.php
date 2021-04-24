@@ -6,7 +6,7 @@ use App\Models\Plan;
 use Illuminate\Support\Collection;
 use App\Http\Controllers\Controller;
 
-class PlansController extends Controller
+class PlanController extends Controller
 {
     /**
      * Get all plans.

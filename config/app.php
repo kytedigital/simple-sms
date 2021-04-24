@@ -175,6 +175,8 @@ return [
         App\Providers\ApiServiceProvider::class,
         App\Services\Shopify\ServiceProvider::class,
 
+        # Register messaging channels.
+        App\Services\MessagingServicesProvider::class,
     ],
 
     /*

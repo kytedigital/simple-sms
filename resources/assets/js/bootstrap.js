@@ -56,3 +56,5 @@ window.Echo = new Echo({
 });
 
 window.Echo.connector.pusher.config.auth.headers['Authorization'] = 'Bearer '+AppContext.token;
+
+window.AppContext.channel = window.Echo.private('shop.'+AppContext.shopName);

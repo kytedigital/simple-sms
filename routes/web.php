@@ -12,14 +12,13 @@
 */
 
 // Don't change the middleware order.
-Route::group([ 'middleware' => ['checkHmac', 'checkShop', 'redirectShopifyAppInstalls' ]], function () {
+Route::group(['middleware' => ['checkHmac', 'checkShop', 'redirectShopifyAppInstalls']], function () {
     Route::get('/', 'DashboardController@index')->name('dashboard');
     Route::get('subscription', 'SubscriptionController@view')->name('subscription');
     Route::get('create-subscription', 'SubscriptionController@createSubscription')
         ->name('subscription.make');
     Route::get('activate-subscription', 'SubscriptionController@activateSubscription')
         ->name('subscription.activate');
-
     Route::get('token', 'InstallationController')->middleware(['checkNounce']);
 });
 
@@ -28,7 +27,6 @@ Route::get('contact',  'ContactController@index')->name('contact');
 Route::get('refresh',  'SecurityController@refresh')->name('refresh');
 Route::get('security', 'SecurityController@security')->name('security');
 Route::get('error', 'ErrorController')->name('error');
-
 
 Route::get('scheduler', function () {
     \Illuminate\Support\Facades\Artisan::call('schedule:run');

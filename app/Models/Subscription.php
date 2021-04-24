@@ -110,4 +110,12 @@ class Subscription extends Model
     {
         return MessageLog::where('shop', $shop)->count();
     }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function shop()
+    {
+        return $this->belongsTo('App\Models\Shop', 'shop', 'name');
+    }
 }
