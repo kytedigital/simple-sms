@@ -55,7 +55,7 @@ class SubscriptionController extends AppController
             'price' => $subscription->getAttribute('price'),
             'return_url' => "https://{$this->shopName(true)}/admin/apps/{$this->appName()}/activate-subscription?shop={$this->shopName()}",
             'trial_days' => $subscription->getAttribute('trial_days'),
-            'test' => null,
+            'test' => true,
         ];
     }
 
