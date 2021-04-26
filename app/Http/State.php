@@ -27,12 +27,12 @@ class State extends Facade
      */
     // public $offset = 0;
 
-    /**
-     * Records offset.
-     *
-     * @var int
-     */
-    public $page = 0;
+//    /**
+//     * Records offset.
+//     *
+//     * @var int
+//     */
+//    public $page = 0;
 
     /**
      * Filtering.
@@ -84,7 +84,7 @@ class State extends Facade
         $this->direction  = $request->query('direction', '');
         $this->fields     = $request->query('fields');
         $this->query      = $request->query('query');
-        $this->page       = $request->query('page');
+//        $this->page       = $request->query('page');
     }
 
     /**
