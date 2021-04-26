@@ -30,7 +30,7 @@ class XFrameHeadersMiddleware
          *
          */
         $response = $next($request);
-        $response->headers->set('X-Frame-Options', 'ALLOW-FROM *.myshopify.com');
+        $response->headers->set('X-Frame-Options', 'ALLOW-FROM myshopify.com');
         return $response;
     }
 }
