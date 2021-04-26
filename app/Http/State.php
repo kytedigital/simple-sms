@@ -25,7 +25,7 @@ class State extends Facade
      *
      * @var int
      */
-    public $offset = 0;
+    // public $offset = 0;
 
     /**
      * Records offset.
