@@ -54,7 +54,7 @@ class BurstSubAccountHelper
         $createParameters = [
             'name' => $shopName,
             'email' => "$shopName+$shopEmailAddress",
-            'password' => '@'.$shopName.'1',
+            'password' => '@'.$shopName.'1AzX',
             'msisdn' => $shopPhoneNumber,
             'client_pays' => false,
         ];
