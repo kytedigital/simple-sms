@@ -11,7 +11,7 @@ class State extends Facade
      *
      * @var int
      */
-    public $state = 1;
+//    public $state = 1;
 
     /**
      * Records limit.
@@ -33,6 +33,7 @@ class State extends Facade
 //     * @var int
 //     */
 //    public $page = 0;
+// todo: https://shopify.dev/tutorials/make-paginated-requests-to-rest-admin-api
 
     /**
      * Filtering.
@@ -78,7 +79,7 @@ class State extends Facade
     {
         $this->limit      = (int) $request->query('limit', 10);
 //        $this->offset     = (int) $request->query('offset', 0);
-        $this->state      = $request->query('state', 1);
+//        $this->state      = $request->query('state', 1);
         $this->filter     = $request->query('filter', '');
         $this->sort       = $request->query('sort', '');
         $this->direction  = $request->query('direction', '');
@@ -97,7 +98,7 @@ class State extends Facade
         $state = (array) $this;
 
 //        $state['page'] = floor($this->offset / $this->limit);
-        $state['page'] = $this->page;
+//        $state['page'] = $this->page;
         $state['order'] = $this->sort .' '. $this->direction;
 
         return http_build_query($state);
