@@ -77,7 +77,7 @@ class State extends Facade
     public function __construct(Request $request)
     {
         $this->limit      = (int) $request->query('limit', 10);
-        $this->offset     = (int) $request->query('offset', 0);
+//        $this->offset     = (int) $request->query('offset', 0);
         $this->state      = $request->query('state', 1);
         $this->filter     = $request->query('filter', '');
         $this->sort       = $request->query('sort', '');
